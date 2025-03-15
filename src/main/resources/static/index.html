@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motorverse - Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInDown { animation: fadeInDown 1s ease-out; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .animate-pulse { animation: pulse 2s infinite; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col overflow-x-hidden">
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400">Motorverse</h1>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="hover:text-blue-400 transition-colors duration-200">Home</a>
+                <a href="buy-car.html" class="hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+                <a href="rent-car.html" class="hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+                <a href="support.html" class="hover:text-blue-400 transition-colors duration-200">Support</a>
+                <a href="register.html" class="hover:text-blue-400 transition-colors duration-200">Register</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg">
+            <a href="index.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Home</a>
+            <a href="buy-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+            <a href="rent-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+            <a href="support.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Support</a>
+            <a href="register.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Register</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="flex-grow flex items-center justify-center py-12">
+        <div class="text-center space-y-6">
+            <h1 class="text-5xl md:text-6xl font-extrabold animate-fadeInDown">Welcome to Motorverse</h1>
+            <h2 class="text-2xl md:text-3xl text-gray-300 font-light animate-fadeInDown delay-200">Your All-in-One Automotive Hub</h2>
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto animate-fadeInDown delay-400">
+                Discover a seamless way to buy, rent, and manage your automotive needs with Motorverse.
+            </p>
+        </div>
+    </main>
+
+    <!-- Services Section -->
+    <section class="container mx-auto p-6 pb-12">
+        <h3 class="text-3xl font-semibold text-center mb-10 animate-fadeInDown delay-600">Our Services</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="relative bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-transparent opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300"></div>
+                <h4 class="text-xl font-bold mb-3 relative z-10">Buy a Car</h4>
+                <p class="text-gray-300 mb-4 relative z-10">Explore a curated selection of vehicles for purchase, tailored to your needs.</p>
+                <a href="buy-car.html" class="inline-block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-center transition-all duration-200 transform hover:scale-105 animate-pulse">Discover Now</a>
+            </div>
+            <div class="relative bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="absolute inset-0 bg-gradient-to-r from-green-500 to-transparent opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300"></div>
+                <h4 class="text-xl font-bold mb-3 relative z-10">Rent a Car</h4>
+                <p class="text-gray-300 mb-4 relative z-10">Flexible rental options for every journey, available at your fingertips.</p>
+                <a href="rent-car.html" class="inline-block w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full text-center transition-all duration-200 transform hover:scale-105 animate-pulse">Rent Today</a>
+            </div>
+            <div class="relative bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-transparent opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300"></div>
+                <h4 class="text-xl font-bold mb-3 relative z-10">Support & More</h4>
+                <p class="text-gray-300 mb-4 relative z-10">Get help, explore parts, insurance, and financing—all in one place.</p>
+                <a href="support.html" class="inline-block w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full text-center transition-all duration-200 transform hover:scale-105 animate-pulse">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 p-4 text-center shadow-inner">
+        <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <script src="/script.js"></script>
+</body>
+</html>

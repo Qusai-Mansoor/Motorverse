@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motorverse - Rent a Car</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400">Motorverse</h1>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="hover:text-blue-400 transition-colors duration-200">Home</a>
+                <a href="buy-car.html" class="hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+                <a href="rent-car.html" class="hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+                <a href="support.html" class="hover:text-blue-400 transition-colors duration-200">Support</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg">
+            <a href="index.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Home</a>
+            <a href="buy-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+            <a href="rent-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+            <a href="support.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Support</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-6">
+        <h2 class="text-4xl font-bold text-center mb-8">Cars for Rent</h2>
+        <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="bg-gray-500 h-48 mb-4 rounded-lg overflow-hidden">
+                    <!-- Placeholder Image -->
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Toyota Corolla 2021</h3>
+                <p class="text-gray-300 mb-4">$50/day</p>
+                <button class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition-colors duration-200">Rent Now</button>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="bg-gray-500 h-48 mb-4 rounded-lg overflow-hidden">
+                    <!-- Placeholder Image -->
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Suzuki Swift 2020</h3>
+                <p class="text-gray-300 mb-4">$40/day</p>
+                <button class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition-colors duration-200">Rent Now</button>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="bg-gray-500 h-48 mb-4 rounded-lg overflow-hidden">
+                    <!-- Placeholder Image -->
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Kia Sportage 2022</h3>
+                <p class="text-gray-300 mb-4">$70/day</p>
+                <button class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition-colors duration-200">Rent Now</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 p-4 text-center shadow-inner">
+        <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <script src="/script.js"></script>
+</body>
+</html>
