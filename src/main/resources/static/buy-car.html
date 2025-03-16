@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motorverse - Buy a Car</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .vehicle-card {
+            opacity: 0; /* Start invisible */
+            animation: fadeInUp 0.6s ease-out forwards; /* Smooth fade-in */
+        }
+    </style>
 </head>
 <body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
     <!-- Navbar -->
@@ -16,6 +26,7 @@
                 <a href="buy-car.html" class="hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
                 <a href="rent-car.html" class="hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
                 <a href="support.html" class="hover:text-blue-400 transition-colors duration-200">Support</a>
+                <a href="register.html" class="hover:text-blue-400 transition-colors duration-200">Register</a>
             </div>
             <button id="menu-toggle" class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,37 +39,15 @@
             <a href="buy-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
             <a href="rent-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
             <a href="support.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Support</a>
+            <a href="register.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Register</a>
         </div>
     </nav>
 
     <!-- Main Content -->
     <main class="flex-grow container mx-auto p-6">
-        <h2 class="text-4xl font-bold text-center mb-8 animate-fade-in">Cars for Sale</h2>
-        <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            <div class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div class="bg-gray-500 h-48 mb-4 rounded-lg overflow-hidden">
-                    <!-- Placeholder Image -->
-                </div>
-                <h3 class="text-xl font-semibold mb-2">Toyota Camry 2020</h3>
-                <p class="text-gray-300 mb-4">$25,000</p>
-                <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">View Details</button>
-            </div>
-            <div class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div class="bg-gray-500 h-48 mb-4 rounded-lg overflow-hidden">
-                    <!-- Placeholder Image -->
-                </div>
-                <h3 class="text-xl font-semibold mb-2">Honda Civic 2019</h3>
-                <p class="text-gray-300 mb-4">$20,000</p>
-                <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">View Details</button>
-            </div>
-            <div class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div class="bg-gray-500 h-48 mb-4 rounded-lg overflow-hidden">
-                    <!-- Placeholder Image -->
-                </div>
-                <h3 class="text-xl font-semibold mb-2">Ford Mustang 2021</h3>
-                <p class="text-gray-300 mb-4">$35,000</p>
-                <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">View Details</button>
-            </div>
+        <h2 class="text-4xl font-bold text-center mb-8">Cars for Sale</h2>
+        <section id="vehicle-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <!-- Vehicles will be dynamically loaded here -->
         </section>
     </main>
 
@@ -67,6 +56,29 @@
         <p class="text-gray-300">© 2025 Motorverse</p>
     </footer>
 
+    <!-- JavaScript -->
     <script src="/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/vehicles/buy')
+                .then(response => response.json())
+                .then(vehicles => {
+                    const vehicleList = document.getElementById('vehicle-list');
+                    vehicles.forEach((vehicle, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'vehicle-card bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2';
+                        card.style.animationDelay = `${index * 0.2}s`; // Staggered delay
+                        card.innerHTML = `
+                            <img src="/images/${vehicle.picture}" alt="${vehicle.name}" class="w-full h-48 object-cover mb-4 rounded-lg transition-transform duration-300 hover:scale-105">
+                            <h3 class="text-xl font-semibold mb-2">${vehicle.name} ${vehicle.year}</h3>
+                            <p class="text-gray-300 mb-4">$${vehicle.price.toFixed(2)}</p>
+                            <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">View Details</button>
+                        `;
+                        vehicleList.appendChild(card);
+                    });
+                })
+                .catch(error => console.error('Error fetching vehicles:', error));
+        });
+    </script>
 </body>
 </html>
