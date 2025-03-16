@@ -2,12 +2,9 @@ package com.motorverse.Motorverse.controller;
 
 import com.motorverse.Motorverse.entity.User;
 import com.motorverse.Motorverse.repository.UserRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,12 +15,9 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody User user) {
-        // Check if email already exists
         if (userRepository.existsByEmail(user.getEmail())) {
             return ResponseEntity.badRequest().body("Email already registered");
         }
-
-        // For simplicity, no password hashing yet (add in production)
         User newUser = new User(
             user.getEmail(),
             user.getPassword(),
@@ -32,8 +26,19 @@ public class UserController {
             user.getDateOfBirth(),
             user.getPhoneNumber()
         );
-
         userRepository.save(newUser);
         return ResponseEntity.ok("User registered successfully");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<User> loginUser(@RequestBody User credentials) {
+        User user = userRepository.findByEmail(credentials.getEmail());
+        if (user == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        if (!user.getPassword().equals(credentials.getPassword())) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        return ResponseEntity.ok(user); // Returns full User object
     }
 }

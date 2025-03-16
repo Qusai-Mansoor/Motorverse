@@ -46,56 +46,95 @@
         >
           Motorverse
         </h1>
-        <div class="hidden md:flex space-x-6">
-          <a
-            href="index.html"
-            class="hover:text-blue-400 transition-colors duration-200"
-            >Home</a
+        <div class="flex items-center space-x-6">
+          <div id="nav-links" class="hidden md:flex space-x-6">
+            <a
+              href="index.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Home</a
+            >
+            <a
+              href="buy-car.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Buy a Car</a
+            >
+            <a
+              href="rent-car.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Rent a Car</a
+            >
+            <a
+              href="support.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Support</a
+            >
+            <a
+              href="register.html"
+              id="register-link"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Register</a
+            >
+            <a
+              href="login.html"
+              id="login-link"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Login</a
+            >
+          </div>
+          <div id="user-detail" class="relative">
+            <img
+              id="avatar"
+              src="/images/avatar.png"
+              alt="User Avatar"
+              class="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity duration-200"
+            />
+            <div
+              id="user-dropdown"
+              class="hidden absolute right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-lg p-4 z-20"
+            >
+              <div class="text-center">
+                <img
+                  src="/images/avatar.png"
+                  alt="User Avatar"
+                  class="w-16 h-16 rounded-full mx-auto mb-2"
+                />
+                <p class="text-lg font-semibold" id="dropdown-name"></p>
+                <p class="text-gray-300" id="dropdown-email"></p>
+                <p class="text-gray-300" id="dropdown-phone"></p>
+                <button
+                  id="logout-btn"
+                  class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition-all duration-200 hidden"
+                >
+                  Logout
+                </button>
+                <button
+                  id="login-btn"
+                  class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-all duration-200"
+                >
+                  Login
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            id="menu-toggle"
+            class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200"
           >
-          <a
-            href="buy-car.html"
-            class="hover:text-blue-400 transition-colors duration-200"
-            >Buy a Car</a
-          >
-          <a
-            href="rent-car.html"
-            class="hover:text-blue-400 transition-colors duration-200"
-            >Rent a Car</a
-          >
-          <a
-            href="support.html"
-            class="hover:text-blue-400 transition-colors duration-200"
-            >Support</a
-          >
-          <a
-            href="register.html"
-            class="hover:text-blue-400 transition-colors duration-200"
-            >Register</a
-          >
-          <a
-            href="login.html"
-            class="hover:text-blue-400 transition-colors duration-200"
-            >Login</a
-          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              ></path>
+            </svg>
+          </button>
         </div>
-        <button
-          id="menu-toggle"
-          class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200"
-        >
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            ></path>
-          </svg>
-        </button>
       </div>
       <div
         id="mobile-menu"
@@ -123,11 +162,13 @@
         >
         <a
           href="register.html"
+          id="mobile-register-link"
           class="block py-2 hover:text-blue-400 transition-colors duration-200"
           >Register</a
         >
         <a
           href="login.html"
+          id="mobile-login-link"
           class="block py-2 hover:text-blue-400 transition-colors duration-200"
           >Login</a
         >
@@ -221,5 +262,69 @@
     </footer>
 
     <script src="/script.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = JSON.parse(localStorage.getItem("loggedInUser"));
+        const userDetail = document.getElementById("user-detail");
+        const avatar = document.getElementById("avatar");
+        const dropdown = document.getElementById("user-dropdown");
+        const dropdownName = document.getElementById("dropdown-name");
+        const dropdownEmail = document.getElementById("dropdown-email");
+        const dropdownPhone = document.getElementById("dropdown-phone");
+        const logoutBtn = document.getElementById("logout-btn");
+        const loginBtn = document.getElementById("login-btn");
+        const registerLink = document.getElementById("register-link");
+        const loginLink = document.getElementById("login-link");
+        const mobileRegisterLink = document.getElementById(
+          "mobile-register-link"
+        );
+        const mobileLoginLink = document.getElementById("mobile-login-link");
+        const navLinks = document.getElementById("nav-links");
+
+        // Show avatar image (always visible)
+        avatar.style.display = "block";
+
+        if (user && user.firstName) {
+          // Logged in state
+          dropdownName.textContent = user.firstName;
+          dropdownEmail.textContent = user.email;
+          dropdownPhone.textContent = user.phoneNumber || "Not provided";
+          logoutBtn.classList.remove("hidden");
+          loginBtn.classList.add("hidden");
+          registerLink.style.display = "none"; // Hide Register
+          loginLink.style.display = "none"; // Hide Login
+          mobileRegisterLink.style.display = "none"; // Hide in mobile menu
+          mobileLoginLink.style.display = "none"; // Hide in mobile menu
+        } else {
+          // Not logged in state
+          logoutBtn.classList.add("hidden");
+          loginBtn.classList.remove("hidden");
+          registerLink.style.display = "block"; // Show Register
+          loginLink.style.display = "block"; // Show Login
+          mobileRegisterLink.style.display = "block"; // Show in mobile menu
+          mobileLoginLink.style.display = "block"; // Show in mobile menu
+        }
+
+        avatar.addEventListener("click", () => {
+          dropdown.classList.toggle("hidden");
+        });
+
+        loginBtn.addEventListener("click", () => {
+          window.location.href = "/login.html";
+        });
+
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("loggedInUser");
+          window.location.href = "/index.html";
+        });
+
+        // Close dropdown if clicking outside
+        document.addEventListener("click", (e) => {
+          if (!userDetail.contains(e.target)) {
+            dropdown.classList.add("hidden");
+          }
+        });
+      });
+    </script>
   </body>
 </html>
