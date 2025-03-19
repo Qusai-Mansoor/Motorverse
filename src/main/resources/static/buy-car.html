@@ -45,7 +45,15 @@
 
     <!-- Main Content -->
     <main class="flex-grow container mx-auto p-6">
-        <h2 class="text-4xl font-bold text-center mb-8">Cars for Sale</h2>
+        <div class="flex items-center justify-center mb-8">
+            <a href="index.html" class="absolute left-8 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full transition-all duration-200 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+            <h2 class="text-4xl font-bold text-center">Cars for Sale</h2>
+        </div>
         <section id="vehicle-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             <!-- Vehicles will be dynamically loaded here -->
         </section>
@@ -67,12 +75,12 @@
                     vehicles.forEach((vehicle, index) => {
                         const card = document.createElement('div');
                         card.className = 'vehicle-card bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2';
-                        card.style.animationDelay = `${index * 0.2}s`; // Staggered delay
+                        card.style.animationDelay = `${index * 0.2}s`;
                         card.innerHTML = `
                             <img src="/images/${vehicle.picture}" alt="${vehicle.name}" class="w-full h-48 object-cover mb-4 rounded-lg transition-transform duration-300 hover:scale-105">
                             <h3 class="text-xl font-semibold mb-2">${vehicle.name} ${vehicle.year}</h3>
                             <p class="text-gray-300 mb-4">$${vehicle.price.toFixed(2)}</p>
-                            <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">View Details</button>
+                            <a href="/vehicle-details.html?id=${vehicle.id}" class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-center transition-colors duration-200">View Details</a>
                         `;
                         vehicleList.appendChild(card);
                     });

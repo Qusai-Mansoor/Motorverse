@@ -31,14 +31,50 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@RequestBody User credentials) {
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest credentials) {
         User user = userRepository.findByEmail(credentials.getEmail());
-        if (user == null) {
-            return ResponseEntity.badRequest().body(null);
+        if (user == null || !user.getPassword().equals(credentials.getPassword())) {
+            return ResponseEntity.badRequest().body("Invalid email or password");
         }
-        if (!user.getPassword().equals(credentials.getPassword())) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        return ResponseEntity.ok(user); // Returns full User object
+
+        // Mock token (replace with JWT in production)
+        String token = "mock-jwt-" + System.currentTimeMillis();
+
+        // Return token and userId in response
+        LoginResponse response = new LoginResponse(token, user.getId(), user.getFirstName(), user.getEmail(), user.getPhoneNumber());
+        return ResponseEntity.ok(response);
     }
+}
+
+class LoginRequest {
+    private String email;
+    private String password;
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+}
+
+class LoginResponse {
+    private String token;
+    private int userId;
+    private String firstName;
+    private String email;
+    private String phoneNumber;
+
+    public LoginResponse(String token, int userId, String firstName, String email, String phoneNumber) {
+        this.token = token;
+        this.userId = userId;
+        this.firstName = firstName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    // Getters
+    public String getToken() { return token; }
+    public int getUserId() { return userId; }
+    public String getFirstName() { return firstName; }
+    public String getEmail() { return email; }
+    public String getPhoneNumber() { return phoneNumber; }
 }

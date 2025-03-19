@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motorverse - Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .payment-toggle {
+            transition: all 0.3s ease;
+        }
+        .payment-toggle.active {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+        }
+        .total-box {
+            background: linear-gradient(135deg, #1f2937, #374151); /* gray-800 to gray-700 */
+            border: 2px solid #60a5fa; /* blue-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400">Motorverse</h1>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="hover:text-blue-400 transition-colors duration-200">Home</a>
+                <a href="buy-car.html" class="hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+                <a href="rent-car.html" class="hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+                <a href="support.html" class="hover:text-blue-400 transition-colors duration-200">Support</a>
+                <a href="register.html" class="hover:text-blue-400 transition-colors duration-200">Register</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg">
+            <a href="index.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Home</a>
+            <a href="buy-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+            <a href="rent-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+            <a href="support.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Support</a>
+            <a href="register.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Register</a>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto p-6">
+        <h2 class="text-4xl font-bold text-center mb-8 fade-in">Complete Your Transaction</h2>
+        <section class="bg-gray-800 rounded-xl shadow-lg p-8 max-w-2xl mx-auto fade-in">
+            <div class="mb-6">
+                <h3 id="vehicle-name" class="text-2xl font-semibold">Loading...</h3>
+                <p id="vehicle-price" class="text-gray-300">Fetching details...</p>
+                <p id="rental-days" class="text-gray-300 hidden"></p>
+            </div>
+
+            <div class="total-box p-4 rounded-lg mb-6">
+                <p class="text-lg">Total Cost</p>
+                <p id="total-cost" class="text-3xl font-bold text-blue-400">$0.00</p>
+            </div>
+
+            <div class="flex justify-center gap-4 mb-6">
+                <button id="credit-card-toggle" class="payment-toggle px-4 py-2 bg-gray-700 rounded-full hover:bg-blue-500 transition-all duration-200 active">Credit Card</button>
+                <button id="paypal-toggle" class="payment-toggle px-4 py-2 bg-gray-700 rounded-full hover:bg-blue-500 transition-all duration-200">PayPal</button>
+                <button id="debit-card-toggle" class="payment-toggle px-4 py-2 bg-gray-700 rounded-full hover:bg-blue-500 transition-all duration-200">Debit Card</button>
+            </div>
+
+            <form id="payment-form" class="space-y-4">
+                <div id="credit-card-form" class="payment-method-form">
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2" for="card-number">Card Number</label>
+                        <input type="text" id="card-number" name="card-number" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500" placeholder="1234 5678 9012 3456">
+                    </div>
+                    <div class="flex gap-4 mb-4">
+                        <div class="flex-1">
+                            <label class="block text-sm mb-2" for="expiry">Expiry Date</label>
+                            <input type="text" id="expiry" name="expiry" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500" placeholder="MM/YY">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm mb-2" for="cvv">CVV</label>
+                            <input type="text" id="cvv" name="cvv" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500" placeholder="123">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2" for="card-name">Name on Card</label>
+                        <input type="text" id="card-name" name="card-name" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div id="paypal-form" class="payment-method-form hidden">
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2" for="paypal-email">PayPal Email</label>
+                        <input type="email" id="paypal-email" name="paypal-email" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500" placeholder="example@paypal.com">
+                    </div>
+                </div>
+
+                <div id="debit-card-form" class="payment-method-form hidden">
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2" for="debit-card-number">Card Number</label>
+                        <input type="text" id="debit-card-number" name="debit-card-number" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500" placeholder="1234 5678 9012 3456">
+                    </div>
+                    <div class="flex gap-4 mb-4">
+                        <div class="flex-1">
+                            <label class="block text-sm mb-2" for="debit-expiry">Expiry Date</label>
+                            <input type="text" id="debit-expiry" name="debit-expiry" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500" placeholder="MM/YY">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm mb-2" for="debit-cvv">CVV</label>
+                            <input type="text" id="debit-cvv" name="debit-cvv" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500" placeholder="123">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2" for="debit-card-name">Name on Card</label>
+                        <input type="text" id="debit-card-name" name="debit-card-name" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="mb-4 text-gray-400 italic">
+                    <p>Insurance options coming soon!</p>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full transition-all duration-200 transform hover:scale-105">Pay Now</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Invoice Modal -->
+    <div id="invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-800 w-full max-w-2xl mx-4 rounded-xl shadow-2xl transform transition-all fade-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-blue-400">Transaction Invoice</h2>
+                    <button id="close-invoice" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="flex justify-between mb-4">
+                        <span class="text-gray-400">Invoice #:</span>
+                        <span id="invoice-number" class="font-mono"></span>
+                    </div>
+                    <div class="flex justify-between mb-4">
+                        <span class="text-gray-400">Date:</span>
+                        <span id="invoice-date"></span>
+                    </div>
+                    <div class="border-t border-gray-700 py-4">
+                        <h3 class="text-xl font-semibold mb-4" id="invoice-vehicle-name"></h3>
+                        <div id="invoice-rental-details" class="hidden mb-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Rental Duration:</span>
+                                <span id="invoice-rental-days"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Daily Rate:</span>
+                                <span id="invoice-daily-rate"></span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-400">Payment Method:</span>
+                            <span id="invoice-payment-method"></span>
+                        </div>
+                        <div class="flex justify-between font-bold text-xl mt-4 pt-4 border-t border-gray-700">
+                            <span>Total Amount:</span>
+                            <span id="invoice-total" class="text-blue-400"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <button id="download-invoice" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full transition-all duration-200 mr-4">
+                        Download PDF
+                    </button>
+                    <button id="close-invoice-btn" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-all duration-200">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 p-4 text-center shadow-inner">
+        <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let totalCost = 0;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const vehicleId = urlParams.get('vehicleId');
+            const days = urlParams.get('days');
+            const type = urlParams.get('type');
+
+            if (vehicleId) {
+                fetch(`/api/vehicles/${vehicleId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Vehicle not found');
+                        return response.json();
+                    })
+                    .then(vehicle => {
+                        document.getElementById('vehicle-name').textContent = `${vehicle.name} ${vehicle.year}`;
+                        if (type === 'rent' && days) {
+                            document.getElementById('vehicle-price').textContent = `Rent Rate: $${vehicle.rentRate.toFixed(2)}/day`;
+                            document.getElementById('rental-days').textContent = `Rental Duration: ${days} day${days > 1 ? 's' : ''}`;
+                            document.getElementById('rental-days').classList.remove('hidden');
+                            totalCost = vehicle.rentRate * parseInt(days);
+                        } else {
+                            document.getElementById('vehicle-price').textContent = `Vehicle Price: $${vehicle.price.toFixed(2)}`;
+                            totalCost = vehicle.price;
+                        }
+                        document.getElementById('total-cost').textContent = `$${totalCost.toFixed(2)}`;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching vehicle:', error);
+                        document.getElementById('vehicle-name').textContent = 'Error loading vehicle';
+                        document.getElementById('vehicle-price').textContent = 'N/A';
+                        document.getElementById('total-cost').textContent = '$0.00';
+                    });
+            } else {
+                document.getElementById('vehicle-name').textContent = 'No vehicle selected';
+                document.getElementById('vehicle-price').textContent = 'N/A';
+            }
+
+            const toggles = {
+                'credit-card': document.getElementById('credit-card-toggle'),
+                'paypal': document.getElementById('paypal-toggle'),
+                'debit-card': document.getElementById('debit-card-toggle')
+            };
+            const forms = {
+                'credit-card': document.getElementById('credit-card-form'),
+                'paypal': document.getElementById('paypal-form'),
+                'debit-card': document.getElementById('debit-card-form')
+            };
+            let activeMethod = 'credit-card';
+
+            function setActivePayment(method) {
+                activeMethod = method;
+                Object.keys(toggles).forEach(key => {
+                    toggles[key].classList.toggle('active', key === method);
+                    forms[key].classList.toggle('hidden', key !== method);
+                });
+            }
+
+            toggles['credit-card'].addEventListener('click', () => setActivePayment('credit-card'));
+            toggles['paypal'].addEventListener('click', () => setActivePayment('paypal'));
+            toggles['debit-card'].addEventListener('click', () => setActivePayment('debit-card'));
+
+            setActivePayment('credit-card');
+
+            document.getElementById('payment-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                console.log('Payment form submitted');
+
+                let isValid = false;
+                if (activeMethod === 'credit-card') {
+                    const cardNumber = document.getElementById('card-number').value.trim();
+                    const expiry = document.getElementById('expiry').value.trim();
+                    const cvv = document.getElementById('cvv').value.trim();
+                    const cardName = document.getElementById('card-name').value.trim();
+                    isValid = cardNumber && expiry && cvv && cardName;
+                    if (!isValid) {
+                        alert('Please fill all Credit Card fields.');
+                        return;
+                    }
+                } else if (activeMethod === 'paypal') {
+                    const paypalEmail = document.getElementById('paypal-email').value.trim();
+                    isValid = paypalEmail && /\S+@\S+\.\S+/.test(paypalEmail);
+                    if (!isValid) {
+                        alert('Please enter a valid PayPal email.');
+                        return;
+                    }
+                } else if (activeMethod === 'debit-card') {
+                    const debitCardNumber = document.getElementById('debit-card-number').value.trim();
+                    const debitExpiry = document.getElementById('debit-expiry').value.trim();
+                    const debitCvv = document.getElementById('debit-cvv').value.trim();
+                    const debitCardName = document.getElementById('debit-card-name').value.trim();
+                    isValid = debitCardNumber && debitExpiry && debitCvv && debitCardName;
+                    if (!isValid) {
+                        alert('Please fill all Debit Card fields.');
+                        return;
+                    }
+                }
+
+                try {
+                    const userId = parseInt(localStorage.getItem('userId'));
+                    if (!userId) {
+                        throw new Error('User not logged in');
+                    }
+
+                    const endpoint = type === 'rent' ? '/api/vehicles/rent' : '/api/vehicles/purchase';
+                    const paymentData = {
+                        userId: userId,
+                        vehicleId: parseInt(vehicleId),
+                        paymentMethod: activeMethod.toUpperCase().replace('-', '_'),
+                        ...(type === 'rent' ? { days: parseInt(days) } : {}) // Add days only for rent
+                    };
+
+                    console.log('Sending payment data to', endpoint, ':', paymentData);
+
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(paymentData)
+                    });
+
+                    console.log('Response status:', response.status);
+
+                    if (!response.ok) {
+                        const errorData = await response.text();
+                        throw new Error(`Transaction failed: ${errorData}`);
+                    }
+
+                    const result = await response.json();
+                    console.log('Transaction successful:', result);
+                    
+                    // Show invoice instead of alert
+                    const invoiceModal = document.getElementById('invoice-modal');
+                    const closeInvoice = document.getElementById('close-invoice');
+                    const closeInvoiceBtn = document.getElementById('close-invoice-btn');
+                    
+                    // Generate random invoice number
+                    const invoiceNumber = 'INV-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                    
+                    // Update invoice details
+                    document.getElementById('invoice-number').textContent = invoiceNumber;
+                    document.getElementById('invoice-date').textContent = new Date().toLocaleDateString();
+                    document.getElementById('invoice-vehicle-name').textContent = document.getElementById('vehicle-name').textContent;
+                    document.getElementById('invoice-payment-method').textContent = activeMethod.replace('-', ' ').toUpperCase();
+                    document.getElementById('invoice-total').textContent = `$${totalCost.toFixed(2)}`;
+
+                    if (type === 'rent') {
+                        document.getElementById('invoice-rental-details').classList.remove('hidden');
+                        document.getElementById('invoice-rental-days').textContent = `${days} day${days > 1 ? 's' : ''}`;
+                        document.getElementById('invoice-daily-rate').textContent = `$${(totalCost / days).toFixed(2)}`;
+                    }
+
+                    // Show modal
+                    invoiceModal.classList.remove('hidden');
+
+                    // Close modal handlers
+                    const closeModal = () => {
+                        invoiceModal.classList.add('hidden');
+                        window.location.href = type === 'rent' ? '/rent-car.html' : '/buy-car.html';
+                    };
+
+                    closeInvoice.addEventListener('click', closeModal);
+                    closeInvoiceBtn.addEventListener('click', closeModal);
+                    invoiceModal.addEventListener('click', (e) => {
+                        if (e.target === invoiceModal) closeModal();
+                    });
+
+                    // Download PDF handler
+                    document.getElementById('download-invoice').addEventListener('click', () => {
+                        // Here you would implement PDF generation
+                        // For now, we'll just show an alert
+                        alert('PDF download feature coming soon!');
+                    });
+
+                } catch (error) {
+                    console.error('Payment error:', error);
+                    alert(`Payment failed: ${error.message}`);
+                    if (error.message === 'User not logged in') {
+                        window.location.href = `/login.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motorverse - Rent Vehicle Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in { animation: fadeIn 0.8s ease-out; }
+        .total-box {
+            background: linear-gradient(135deg, #1f2937, #374151); /* gray-800 to gray-700 */
+            border: 2px solid #10b981; /* green-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400">Motorverse</h1>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="hover:text-blue-400 transition-colors duration-200">Home</a>
+                <a href="buy-car.html" class="hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+                <a href="rent-car.html" class="hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+                <a href="support.html" class="hover:text-blue-400 transition-colors duration-200">Support</a>
+                <a href="register.html" class="hover:text-blue-400 transition-colors duration-200">Register</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg">
+            <a href="index.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Home</a>
+            <a href="buy-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+            <a href="rent-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+            <a href="support.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Support</a>
+            <a href="register.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Register</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-6">
+        <section id="vehicle-details" class="bg-gray-800 rounded-xl shadow-lg p-8 max-w-4xl mx-auto fade-in">
+            <div class="flex flex-col md:flex-row gap-8">
+                <img id="vehicle-image" src="" alt="Vehicle" class="w-full md:w-1/2 h-64 md:h-96 object-cover rounded-lg transition-transform duration-300 hover:scale-105">
+                <div class="flex-1 space-y-4">
+                    <h2 id="vehicle-name" class="text-3xl font-bold"></h2>
+                    <p id="vehicle-rent-rate" class="text-xl text-gray-300"></p>
+                    <p id="vehicle-description" class="text-gray-400"></p>
+                    <div class="mb-4">
+                        <label for="rental-days" class="block text-sm mb-2">Rental Duration (Days):</label>
+                        <select id="rental-days" class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-green-500">
+                            <option value="1">1 Day</option>
+                            <option value="3">3 Days</option>
+                            <option value="7">7 Days</option>
+                            <option value="14">14 Days</option>
+                            <option value="30">30 Days</option>
+                        </select>
+                    </div>
+                    <div class="total-box p-4 rounded-lg mb-4">
+                        <p class="text-lg">Total Rental Cost</p>
+                        <p id="total-cost" class="text-2xl font-bold text-green-400">$0.00</p>
+                    </div>
+                    <p class="text-gray-300"><strong>Pickup Location:</strong> <span id="pickup-location">Motorverse Downtown Hub, Seattle, WA</span></p>
+                    <a id="rent-now" href="#" class="block w-full bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105">Rent Now</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 p-4 text-center shadow-inner">
+        <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const vehicleId = urlParams.get('id');
+            let rentRate = 0;
+
+            if (vehicleId) {
+                fetch(`/api/vehicles/${vehicleId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Vehicle not found');
+                        return response.json();
+                    })
+                    .then(vehicle => {
+                        document.getElementById('vehicle-image').src = `/images/${vehicle.picture}`;
+                        document.getElementById('vehicle-name').textContent = `${vehicle.name} ${vehicle.year}`;
+                        document.getElementById('vehicle-rent-rate').textContent = `$${vehicle.rentRate.toFixed(2)}/day`;
+                        document.getElementById('vehicle-description').textContent = vehicle.description || 'No description available.';
+                        rentRate = vehicle.rentRate;
+                        updateTotalCost(); // Initial calculation
+                    })
+                    .catch(error => {
+                        console.error('Error fetching vehicle:', error);
+                        document.getElementById('vehicle-name').textContent = 'Error loading vehicle';
+                        document.getElementById('vehicle-rent-rate').textContent = 'N/A';
+                    });
+            }
+
+            // Update total cost when rental days change
+            const rentalDaysSelect = document.getElementById('rental-days');
+            rentalDaysSelect.addEventListener('change', updateTotalCost);
+
+            function updateTotalCost() {
+                const days = parseInt(rentalDaysSelect.value);
+                const totalCost = rentRate * days;
+                document.getElementById('total-cost').textContent = `$${totalCost.toFixed(2)}`;
+            }
+
+            // Rent Now button logic
+            document.getElementById('rent-now').addEventListener('click', (e) => {
+                e.preventDefault();
+                const days = rentalDaysSelect.value;
+                const isLoggedIn = localStorage.getItem('userToken') !== null; 
+                if (isLoggedIn) {
+                    window.location.href = `/payment.html?vehicleId=${vehicleId}&days=${days}&type=rent`;
+                } else {
+                    window.location.href = `/login.html?redirect=/payment.html?vehicleId=${vehicleId}&days=${days}&type=rent`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

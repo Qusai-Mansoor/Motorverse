@@ -28,6 +28,9 @@ public class Vehicle {
     @Column(name = "picture")  // Stores picture path
     private String picture;
 
+    @Column(name = "description")  // New field
+    private String description;
+
     // Enum for status
     public enum Status {
         AVAILABLE, SOLD, RENTED
@@ -48,4 +51,6 @@ public class Vehicle {
     public void setStatus(Status status) { this.status = status; }
     public String getPicture() { return picture; }
     public void setPicture(String picture) { this.picture = picture; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }
