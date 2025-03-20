@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motorverse - Return Vehicle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeInDown {
+        animation: fadeInDown 1s ease-out;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-900 text-white font-sans min-h-screen flex flex-col overflow-x-hidden"
+  >
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg z-10">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1
+          class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400"
+        >
+          Motorverse
+        </h1>
+        <div class="flex items-center space-x-6">
+          <div id="nav-links" class="hidden md:flex space-x-6">
+            <a
+              href="index.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Home</a
+            >
+            <a
+              href="buy-car.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Buy a Car</a
+            >
+            <a
+              href="rent-car.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Rent a Car</a
+            >
+            <a
+              href="return-vehicle.html"
+              id="return-vehicle-link"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Return Vehicle</a
+            >
+            <a
+              href="support.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Support</a
+            >
+            <a
+              href="register.html"
+              id="register-link"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Register</a
+            >
+            <a
+              href="login.html"
+              id="login-link"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Login</a
+            >
+          </div>
+          <div id="user-detail" class="relative">
+            <img
+              id="avatar"
+              src="/images/avatar.png"
+              alt="User Avatar"
+              class="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity duration-200"
+            />
+            <div
+              id="user-dropdown"
+              class="hidden absolute right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-lg p-4 z-20"
+            >
+              <div class="text-center">
+                <img
+                  src="/images/avatar.png"
+                  alt="User Avatar"
+                  class="w-16 h-16 rounded-full mx-auto mb-2"
+                />
+                <p class="text-lg font-semibold" id="dropdown-name"></p>
+                <p class="text-gray-300" id="dropdown-email"></p>
+                <p class="text-gray-300" id="dropdown-phone"></p>
+                <button
+                  id="logout-btn"
+                  class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition-all duration-200 hidden"
+                >
+                  Logout
+                </button>
+                <button
+                  id="login-btn"
+                  class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-all duration-200"
+                >
+                  Login
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            id="menu-toggle"
+            class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg"
+      >
+        <a
+          href="index.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Home</a
+        >
+        <a
+          href="buy-car.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Buy a Car</a
+        >
+        <a
+          href="rent-car.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Rent a Car</a
+        >
+        <a
+          href="return-vehicle.html"
+          id="mobile-return-vehicle-link"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Return Vehicle</a
+        >
+        <a
+          href="support.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Support</a
+        >
+        <a
+          href="register.html"
+          id="mobile-register-link"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Register</a
+        >
+        <a
+          href="login.html"
+          id="mobile-login-link"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Login</a
+        >
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto flex-grow p-6">
+      <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold mb-8 text-center animate-fadeInDown">Return a Vehicle</h1>
+        
+        <!-- Login Required Message -->
+        <div id="login-required" class="hidden bg-red-900 p-6 rounded-lg shadow-lg text-center animate-fadeInDown">
+          <h2 class="text-xl font-semibold mb-4">Please Login First</h2>
+          <p class="text-gray-300 mb-4">You need to be logged in to access your rental information.</p>
+          <a href="login.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full transition-all duration-200">Login Now</a>
+        </div>
+        
+        <!-- No Rentals Message -->
+        <div id="no-rentals" class="hidden bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+          <h2 class="text-xl font-semibold mb-4">No Active Rentals Found</h2>
+          <p class="text-gray-300 mb-4">You don't have any vehicles currently rented.</p>
+          <a href="rent-car.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full transition-all duration-200">Rent a Vehicle</a>
+        </div>
+        
+        <!-- Rentals List -->
+        <div id="rentals-container" class="hidden space-y-6 animate-fadeInDown"></div>
+        
+        <!-- Return Modal -->
+        <div id="return-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-gray-800 p-6 rounded-lg max-w-lg w-full">
+            <h2 class="text-2xl font-bold mb-4">Return Vehicle</h2>
+            <p class="mb-6" id="return-modal-text">Please report any damage to the vehicle below.</p>
+            
+            <div class="mb-6">
+              <label class="block text-gray-300 mb-2">Damage Percentage (0-100%)</label>
+              <input 
+                type="range" 
+                id="damage-percentage" 
+                min="0" 
+                max="100" 
+                value="0" 
+                class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+              >
+              <div class="flex justify-between mt-2">
+                <span>0% (No Damage)</span>
+                <span id="damage-value">0%</span>
+                <span>100% (Total Loss)</span>
+              </div>
+            </div>
+            
+            <div id="damage-charges" class="hidden mb-6 p-4 bg-red-900 bg-opacity-40 rounded-lg">
+              <p class="font-semibold">Estimated Damage Charges: <span id="damage-fee">$0</span></p>
+              <p class="text-sm text-gray-400 mt-2">Based on the vehicle's value and reported damage</p>
+            </div>
+            
+            <div id="late-fee-container" class="hidden mb-6 p-4 bg-yellow-900 bg-opacity-40 rounded-lg">
+              <p class="font-semibold">Late Return Fee: <span id="late-fee">$0</span></p>
+              <p class="text-sm text-gray-400 mt-2">Vehicle was due back on <span id="due-date"></span></p>
+            </div>
+            
+            <div class="flex justify-end space-x-4">
+              <button id="cancel-return" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors">Cancel</button>
+              <button id="confirm-return" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors">Confirm Return</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 p-4 text-center shadow-inner">
+      <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // User Authentication Logic
+        const user = JSON.parse(localStorage.getItem("loggedInUser"));
+        const userId = JSON.parse(localStorage.getItem("userId"));
+        const userDetail = document.getElementById("user-detail");
+        const avatar = document.getElementById("avatar");
+        const dropdown = document.getElementById("user-dropdown");
+        const dropdownName = document.getElementById("dropdown-name");
+        const dropdownEmail = document.getElementById("dropdown-email");
+        const dropdownPhone = document.getElementById("dropdown-phone");
+        const logoutBtn = document.getElementById("logout-btn");
+        const loginBtn = document.getElementById("login-btn");
+        const registerLink = document.getElementById("register-link");
+        const loginLink = document.getElementById("login-link");
+        const mobileRegisterLink = document.getElementById("mobile-register-link");
+        const mobileLoginLink = document.getElementById("mobile-login-link");
+        const returnVehicleLink = document.getElementById("return-vehicle-link");
+        const mobileReturnVehicleLink = document.getElementById("mobile-return-vehicle-link");
+        
+        // Page Elements
+        const loginRequired = document.getElementById("login-required");
+        const noRentals = document.getElementById("no-rentals");
+        const rentalsContainer = document.getElementById("rentals-container");
+        const returnModal = document.getElementById("return-modal");
+        const damagePercentage = document.getElementById("damage-percentage");
+        const damageValue = document.getElementById("damage-value");
+        const damageCharges = document.getElementById("damage-charges");
+        const damageFee = document.getElementById("damage-fee");
+        const lateFeeContainer = document.getElementById("late-fee-container");
+        const lateFee = document.getElementById("late-fee");
+        const dueDate = document.getElementById("due-date");
+        const cancelReturn = document.getElementById("cancel-return");
+        const confirmReturn = document.getElementById("confirm-return");
+        
+        // Current rental being returned
+        let currentRental = null;
+        let currentVehicle = null;
+
+        // Show avatar image (always visible)
+        avatar.style.display = "block";
+
+        if (user && userId) {
+          // Logged in state
+          dropdownName.textContent = user.firstName;
+          dropdownEmail.textContent = user.email;
+          dropdownPhone.textContent = user.phoneNumber || "Not provided";
+          logoutBtn.classList.remove("hidden");
+          loginBtn.classList.add("hidden");
+          registerLink.style.display = "none"; // Hide Register
+          loginLink.style.display = "none"; // Hide Login
+          mobileRegisterLink.style.display = "none"; // Hide in mobile menu
+          mobileLoginLink.style.display = "none"; // Hide in mobile menu
+          returnVehicleLink.style.display = "block"; // Show Return Vehicle link
+          mobileReturnVehicleLink.style.display = "block"; // Show Return Vehicle link in mobile
+          
+          // Load user's rentals
+          loadUserRentals();
+        } else {
+          // Not logged in state
+          logoutBtn.classList.add("hidden");
+          loginBtn.classList.remove("hidden");
+          registerLink.style.display = "block"; // Show Register
+          loginLink.style.display = "block"; // Show Login
+          mobileRegisterLink.style.display = "block"; // Show in mobile menu
+          mobileLoginLink.style.display = "block"; // Show in mobile menu
+          returnVehicleLink.style.display = "none"; // Hide Return Vehicle link
+          mobileReturnVehicleLink.style.display = "none"; // Hide Return Vehicle link in mobile
+          
+          // Show login required message
+          loginRequired.classList.remove("hidden");
+        }
+
+        // Load user's rented vehicles
+        function loadUserRentals() {
+          fetch(`/api/vehicles/user-rentals/${userId}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to load rentals');
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.length === 0) {
+                noRentals.classList.remove("hidden");
+              } else {
+                rentalsContainer.classList.remove("hidden");
+                renderRentals(data);
+              }
+            })
+            .catch(error => {
+              console.error('Error loading rentals:', error);
+              rentalsContainer.innerHTML = `
+                <div class="bg-red-900 bg-opacity-40 p-4 rounded-lg">
+                  <p>Error loading your rentals. Please try again later.</p>
+                </div>
+              `;
+              rentalsContainer.classList.remove("hidden");
+            });
+        }
+
+        // Render rental cards
+        function renderRentals(rentals) {
+          rentalsContainer.innerHTML = '';
+          
+          rentals.forEach(item => {
+            const rental = item.rental;
+            const vehicle = item.vehicle;
+            
+            // Format dates
+            const startDate = new Date(rental.startDate).toLocaleDateString();
+            const endDate = new Date(rental.endDate).toLocaleDateString();
+            const isLate = new Date() > new Date(rental.endDate);
+            
+            // Create rental card
+            const rentalCard = document.createElement('div');
+            rentalCard.className = 'bg-gray-800 rounded-lg shadow-lg overflow-hidden';
+            
+            rentalCard.innerHTML = `
+              <div class="md:flex">
+                <div class="md:w-1/3">
+                  <img src="${vehicle.picture || '/images/car-placeholder.jpg'}" alt="${vehicle.name}" 
+                       class="w-full h-48 md:h-full object-cover">
+                </div>
+                <div class="p-6 md:w-2/3">
+                  <div class="flex justify-between items-start">
+                    <h2 class="text-xl font-bold">${vehicle.name} (${vehicle.year})</h2>
+                    ${isLate ? 
+                      '<span class="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-semibold">OVERDUE</span>' : 
+                      '<span class="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-semibold">ACTIVE</span>'}
+                  </div>
+                  
+                  <div class="mt-4 space-y-2 text-gray-300">
+                    <p><span class="font-semibold">Daily Rate:</span> $${vehicle.rentRate.toFixed(2)}</p>
+                    <p><span class="font-semibold">Rental Started:</span> ${startDate}</p>
+                    <p><span class="font-semibold">Due Back:</span> ${endDate}</p>
+                  </div>
+                  
+                  <div class="mt-6 flex justify-end">
+                    <button class="return-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                            data-rental='${JSON.stringify(rental)}'
+                            data-vehicle='${JSON.stringify(vehicle)}'>
+                      Return Vehicle
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+            
+            rentalsContainer.appendChild(rentalCard);
+          });
+          
+          // Add event listeners to return buttons
+          document.querySelectorAll('.return-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              currentRental = JSON.parse(btn.dataset.rental);
+              currentVehicle = JSON.parse(btn.dataset.vehicle);
+              openReturnModal();
+            });
+          });
+        }
+        
+        // Open return modal
+        function openReturnModal() {
+          // Reset form
+          damagePercentage.value = 0;
+          damageValue.textContent = '0%';
+          damageCharges.classList.add('hidden');
+          
+          // Check if the return is late
+          const endDate = new Date(currentRental.endDate);
+          const now = new Date();
+          const isLate = now > endDate;
+          
+          if (isLate) {
+            // Calculate late days
+            const diffTime = Math.abs(now - endDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const lateFeeAmount = diffDays * currentVehicle.rentRate;
+            
+            lateFee.textContent = `$${lateFeeAmount.toFixed(2)}`;
+            dueDate.textContent = endDate.toLocaleDateString();
+            lateFeeContainer.classList.remove('hidden');
+          } else {
+            lateFeeContainer.classList.add('hidden');
+          }
+          
+          returnModal.classList.remove('hidden');
+        }
+        
+        // Event listeners for the damage slider
+        damagePercentage.addEventListener('input', () => {
+          const value = damagePercentage.value;
+          damageValue.textContent = `${value}%`;
+          
+          if (value > 0) {
+            // Calculate damage fee
+            const fee = (value / 100) * currentVehicle.price;
+            damageFee.textContent = `$${fee.toFixed(2)}`;
+            damageCharges.classList.remove('hidden');
+          } else {
+            damageCharges.classList.add('hidden');
+          }
+        });
+        
+        // Cancel return
+        cancelReturn.addEventListener('click', () => {
+          returnModal.classList.add('hidden');
+          currentRental = null;
+          currentVehicle = null;
+        });
+        
+        // Confirm return
+        confirmReturn.addEventListener('click', () => {
+          const damagePercent = parseInt(damagePercentage.value);
+          
+          // Send return request to server
+          fetch('/api/vehicles/return-vehicle', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              rentalId: currentRental.id,
+              damagePercentage: damagePercent
+            })
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to return vehicle');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Close modal
+            returnModal.classList.add('hidden');
+            
+            // Show success message
+            let message = `<div class="bg-green-900 bg-opacity-50 p-6 rounded-lg text-center">
+              <h3 class="text-xl font-bold mb-2">Vehicle Returned Successfully</h3>
+              <p>Thank you for using Motorverse!</p>`;
+            
+            if (data.additionalCharges > 0) {
+              message += `<p class="mt-4">Additional charges: $${data.additionalCharges.toFixed(2)}</p>
+                <p class="text-sm text-gray-400 mt-1">These charges include any late fees and damage repairs</p>`;
+            }
+            
+            message += `<a href="index.html" class="inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">Return to Home</a>
+              </div>`;
+            
+            rentalsContainer.innerHTML = message;
+            noRentals.classList.add('hidden');
+          })
+          .catch(error => {
+            console.error('Error returning vehicle:', error);
+            alert('Failed to return the vehicle. Please try again.');
+          });
+        });
+
+        // Avatar dropdown toggle
+        avatar.addEventListener("click", () => {
+          dropdown.classList.toggle("hidden");
+        });
+
+        loginBtn.addEventListener("click", () => {
+          window.location.href = "/login.html";
+        });
+
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("loggedInUser");
+          window.location.href = "/index.html";
+        });
+
+        // Close dropdown if clicking outside
+        document.addEventListener("click", (e) => {
+          if (!userDetail.contains(e.target)) {
+            dropdown.classList.add("hidden");
+          }
+        });
+        
+        // Mobile menu toggle
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+        
+        menuToggle.addEventListener("click", () => {
+          mobileMenu.classList.toggle("hidden");
+        });
+      });
+    </script>
+  </body>
+</html>

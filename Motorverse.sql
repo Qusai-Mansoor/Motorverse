@@ -57,6 +57,8 @@ INSERT INTO vehicles (name, year, price, rent_rate, status) VALUES
 ALTER TABLE vehicles
     ADD COLUMN picture VARCHAR(255) default 'Camry_Pic.jpg';
 
+
+-- 16 march
 ALTER TABLE vehicles
     ADD COLUMN description TEXT;    
 
@@ -65,6 +67,19 @@ UPDATE vehicles SET description = 'Compact and reliable, perfect for city drivin
 UPDATE vehicles SET description = 'Powerful muscle car with a bold design.' WHERE id=3;
 UPDATE vehicles SET description = 'Affordable hatchback with modern features.' WHERE id=4;
 
-select * from users;
-select * from vehicles
+ALTER TABLE purchases
+    ADD COLUMN payment_method ENUM('CREDIT_CARD', 'PAYPAL', 'DEBIT_CARD') NOT NULL,
+    ADD COLUMN amount DECIMAL(10,2) NOT NULL,
+    ADD COLUMN transaction_id VARCHAR(100),
+    ADD COLUMN status ENUM('PENDING', 'COMPLETED', 'FAILED') DEFAULT 'PENDING';
+
+-- 19 March
+ALTER TABLE rentals
+	ADD COLUMN status ENUM('RETURNED','RENTED');
+
+UPDATE rentals SET status = 'RENTED' where id = 1;
+
+select * from purchases;
+use motorverse;
+select * from rentals
 

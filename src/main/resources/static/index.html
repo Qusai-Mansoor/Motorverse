@@ -64,6 +64,12 @@
               >Rent a Car</a
             >
             <a
+              href="return-vehicle.html"
+              id="return-vehicle-link"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Return Vehicle</a
+            >
+            <a
               href="support.html"
               class="hover:text-blue-400 transition-colors duration-200"
               >Support</a
@@ -154,6 +160,12 @@
           href="rent-car.html"
           class="block py-2 hover:text-blue-400 transition-colors duration-200"
           >Rent a Car</a
+        >
+        <a
+          href="return-vehicle.html"
+          id="mobile-return-vehicle-link"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Return Vehicle</a
         >
         <a
           href="support.html"
@@ -275,10 +287,10 @@
         const loginBtn = document.getElementById("login-btn");
         const registerLink = document.getElementById("register-link");
         const loginLink = document.getElementById("login-link");
-        const mobileRegisterLink = document.getElementById(
-          "mobile-register-link"
-        );
+        const mobileRegisterLink = document.getElementById("mobile-register-link");
         const mobileLoginLink = document.getElementById("mobile-login-link");
+        const returnVehicleLink = document.getElementById("return-vehicle-link");
+        const mobileReturnVehicleLink = document.getElementById("mobile-return-vehicle-link");
         const navLinks = document.getElementById("nav-links");
 
         // Show avatar image (always visible)
@@ -295,6 +307,8 @@
           loginLink.style.display = "none"; // Hide Login
           mobileRegisterLink.style.display = "none"; // Hide in mobile menu
           mobileLoginLink.style.display = "none"; // Hide in mobile menu
+          returnVehicleLink.style.display = "block"; // Show Return Vehicle link
+          mobileReturnVehicleLink.style.display = "block"; // Show Return Vehicle in mobile menu
         } else {
           // Not logged in state
           logoutBtn.classList.add("hidden");
@@ -303,6 +317,8 @@
           loginLink.style.display = "block"; // Show Login
           mobileRegisterLink.style.display = "block"; // Show in mobile menu
           mobileLoginLink.style.display = "block"; // Show in mobile menu
+          returnVehicleLink.style.display = "none"; // Hide Return Vehicle link
+          mobileReturnVehicleLink.style.display = "none"; // Hide Return Vehicle in mobile menu
         }
 
         avatar.addEventListener("click", () => {

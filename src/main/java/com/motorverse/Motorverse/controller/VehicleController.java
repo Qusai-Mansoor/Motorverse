@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/vehicles")
@@ -72,10 +75,7 @@ public class VehicleController {
         return purchaseRepository.save(purchase);
     }
 
-    
-
-
-   @PostMapping("/rent")
+    @PostMapping("/rent")
     public Rental rentVehicle(@RequestBody RentalRequest request) {
         if (request.getUserId() <= 0) {
             throw new RuntimeException("User must be logged in");
@@ -101,7 +101,70 @@ public class VehicleController {
         return rentalRepository.save(rental);
     }
 
+    @GetMapping("/user-rentals/{userId}")
+    public List<Map<String, Object>> getUserRentals(@PathVariable int userId) {
+        List<Rental> rentals = rentalRepository.findByUserIdAndStatus(userId, Rental.Status.RENTED);
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        for (Rental rental : rentals) {
+            Map<String, Object> rentalDetails = new HashMap<>();
+            Vehicle vehicle = vehicleRepository.findById(rental.getVehicleId())
+                    .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+            
+            rentalDetails.put("rental", rental);
+            rentalDetails.put("vehicle", vehicle);
+            result.add(rentalDetails);
+        }
+        
+        return result;
+    }
+    
+    @PostMapping("/return-vehicle")
+    public Map<String, Object> returnVehicle(@RequestBody ReturnVehicleRequest request) {
+        Rental rental = rentalRepository.findById(request.getRentalId())
+                .orElseThrow(() -> new RuntimeException("Rental not found"));
+        
+        if (rental.getStatus() == Rental.Status.RETURNED) {
+            throw new RuntimeException("This vehicle has already been returned");
+        }
+        
+        Vehicle vehicle = vehicleRepository.findById(rental.getVehicleId())
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+        
+        // Calculate any additional charges
+        double additionalCharges = 0;
+        
+        // Check if return is late
+        if (LocalDateTime.now().isAfter(rental.getEndDate())) {
+            long daysLate = java.time.Duration.between(rental.getEndDate(), LocalDateTime.now()).toDays();
+            if (daysLate > 0) {
+                // Charge per late day (using the daily rent rate)
+                additionalCharges += daysLate * vehicle.getRentRate();
+            }
+        }
+        
+        // Add damage charges if any
+        if (request.getDamagePercentage() > 0) {
+            // Calculate damage fee as a percentage of the vehicle's value
+            additionalCharges += (request.getDamagePercentage() / 100.0) * vehicle.getPrice();
+        }
+        
+        // Update rental status
+        rental.setStatus(Rental.Status.RETURNED);
+        rentalRepository.save(rental);
+        
+        // Update vehicle status
+        vehicle.setStatus(Vehicle.Status.AVAILABLE);
+        vehicleRepository.save(vehicle);
+        
+        // Return response with charges
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("additionalCharges", additionalCharges);
+        return response;
+    }
 }
+
 class PurchaseRequest {
     private int userId;
     private int vehicleId;
@@ -129,4 +192,14 @@ class RentalRequest {
     public void setDays(int days) { this.days = days; }
     public String getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+}
+
+class ReturnVehicleRequest {
+    private int rentalId;
+    private double damagePercentage;
+    
+    public int getRentalId() { return rentalId; }
+    public void setRentalId(int rentalId) { this.rentalId = rentalId; }
+    public double getDamagePercentage() { return damagePercentage; }
+    public void setDamagePercentage(double damagePercentage) { this.damagePercentage = damagePercentage; }
 }
