@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motorverse - Post Vehicle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeInDown {
+        animation: fadeInDown 1s ease-out;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-900 text-white font-sans min-h-screen flex flex-col overflow-x-hidden"
+  >
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg z-10">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1
+          class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400"
+        >
+          Motorverse
+        </h1>
+        <div class="flex items-center space-x-6">
+          <div id="nav-links" class="hidden md:flex space-x-6">
+            <a
+              href="index.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Home</a
+            >
+            <a
+              href="buy-car.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Buy a Car</a
+            >
+            <a
+              href="rent-car.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Rent a Car</a
+            >
+            <a
+              href="return-vehicle.html"
+              id="return-vehicle-link"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Return Vehicle</a
+            >
+            <a
+              href="support.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Support</a
+            >
+            <a
+              href="register.html"
+              id="register-link"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Register</a
+            >
+            <a
+              href="login.html"
+              id="login-link"
+              class="hover:text-blue-400 transition-colors duration-200"
+              >Login</a
+            >
+          </div>
+          <div id="user-detail" class="relative">
+            <img
+              id="avatar"
+              src="/images/avatar.png"
+              alt="User Avatar"
+              class="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity duration-200"
+            />
+            <div
+              id="user-dropdown"
+              class="hidden absolute right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-lg p-4 z-20"
+            >
+              <div class="text-center">
+                <img
+                  src="/images/avatar.png"
+                  alt="User Avatar"
+                  class="w-16 h-16 rounded-full mx-auto mb-2"
+                />
+                <p class="text-lg font-semibold" id="dropdown-name"></p>
+                <p class="text-gray-300" id="dropdown-email"></p>
+                <p class="text-gray-300" id="dropdown-phone"></p>
+                <button
+                  id="logout-btn"
+                  class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition-all duration-200 hidden"
+                >
+                  Logout
+                </button>
+                <button
+                  id="login-btn"
+                  class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-all duration-200"
+                >
+                  Login
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            id="menu-toggle"
+            class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg"
+      >
+        <a
+          href="index.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Home</a
+        >
+        <a
+          href="buy-car.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Buy a Car</a
+        >
+        <a
+          href="rent-car.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Rent a Car</a
+        >
+        <a
+          href="return-vehicle.html"
+          id="mobile-return-vehicle-link"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Return Vehicle</a
+        >
+        <a
+          href="support.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Support</a
+        >
+        <a
+          href="register.html"
+          id="mobile-register-link"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Register</a
+        >
+        <a
+          href="login.html"
+          id="mobile-login-link"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Login</a
+        >
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto flex-grow p-6">
+      <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-bold mb-8 text-center animate-fadeInDown">
+          Post Your Vehicle
+        </h1>
+        
+        <!-- Login Required Message -->
+        <div id="login-required" class="hidden bg-red-900 p-6 rounded-lg shadow-lg text-center animate-fadeInDown">
+          <h2 class="text-xl font-semibold mb-4">Please Login First</h2>
+          <p class="text-gray-300 mb-4">You need to be logged in to post a vehicle.</p>
+          <a href="login.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full transition-all duration-200">Login Now</a>
+        </div>
+        
+        <!-- Listing Type Selection -->
+        <div id="listing-type-selector" class="hidden bg-gray-800 p-8 rounded-lg shadow-xl animate-fadeInDown mb-6">
+          <h2 class="text-2xl font-semibold mb-6 text-center">What do you want to do with your vehicle?</h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div 
+              id="sale-option" 
+              class="bg-gray-700 p-6 rounded-lg cursor-pointer hover:bg-blue-900 transition-colors duration-300 text-center border-2 border-transparent"
+            >
+              <div class="text-5xl mb-4">🏷️</div>
+              <h3 class="text-xl font-semibold">Sell My Vehicle</h3>
+              <p class="text-gray-300 mt-2">List your vehicle for sale on Motorverse</p>
+            </div>
+            
+            <div 
+              id="rent-option" 
+              class="bg-gray-700 p-6 rounded-lg cursor-pointer hover:bg-green-900 transition-colors duration-300 text-center border-2 border-transparent"
+            >
+              <div class="text-5xl mb-4">🚗</div>
+              <h3 class="text-xl font-semibold">Rent Out My Vehicle</h3>
+              <p class="text-gray-300 mt-2">Make your vehicle available for rent</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Post Vehicle Form -->
+        <div id="post-form" class="hidden bg-gray-800 p-8 rounded-lg shadow-xl animate-fadeInDown">
+          <div class="mb-6 text-center">
+            <p class="text-gray-300" id="form-description">Fill out the details below to list your vehicle.</p>
+          </div>
+          
+          <form id="vehicle-form" enctype="multipart/form-data">
+            <input type="hidden" id="listing-type" name="listingType" value="SALE">
+            
+            <div class="space-y-6">
+              <div>
+                <label for="name" class="block text-gray-300 mb-2">Vehicle Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. Toyota Camry"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label for="year" class="block text-gray-300 mb-2">Year</label>
+                <input
+                  type="number"
+                  id="year"
+                  name="year"
+                  min="1900"
+                  max="2030"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. 2022"
+                  required
+                />
+              </div>
+              
+              <div id="price-container">
+                <label for="price" class="block text-gray-300 mb-2">Price ($)</label>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  min="1"
+                  step="0.01"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. 25000"
+                  required
+                />
+              </div>
+              
+              <div id="rent-rate-container" class="hidden">
+                <label for="rentRate" class="block text-gray-300 mb-2">Daily Rent Rate ($)</label>
+                <input
+                  type="number"
+                  id="rentRate"
+                  name="rentRate"
+                  min="1"
+                  step="0.01"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. 75"
+                />
+              </div>
+              
+              <div>
+                <label for="location" class="block text-gray-300 mb-2">Location</label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. New York, NY"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label for="mileage" class="block text-gray-300 mb-2">Mileage</label>
+                <input
+                  type="number"
+                  id="mileage"
+                  name="mileage"
+                  min="0"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. 15000"
+                  required
+                />
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="fuelType" class="block text-gray-300 mb-2">Fuel Type</label>
+                  <select
+                    id="fuelType"
+                    name="fuelType"
+                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    required
+                  >
+                    <option value="PETROL">Petrol</option>
+                    <option value="DIESEL">Diesel</option>
+                    <option value="ELECTRIC">Electric</option>
+                    <option value="HYBRID">Hybrid</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label for="transmission" class="block text-gray-300 mb-2">Transmission</label>
+                  <select
+                    id="transmission"
+                    name="transmission"
+                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    required
+                  >
+                    <option value="AUTOMATIC">Automatic</option>
+                    <option value="MANUAL">Manual</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label for="condition" class="block text-gray-300 mb-2">Condition</label>
+                <select
+                  id="condition"
+                  name="condition"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  required
+                >
+                  <option value="NEW">New</option>
+                  <option value="USED">Used</option>
+                  <option value="CERTIFIED_PRE_OWNED">Certified Pre-Owned</option>
+                </select>
+              </div>
+              
+              <!-- Rent-specific fields -->
+              <div id="rental-dates-container" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="availableFrom" class="block text-gray-300 mb-2">Available From</label>
+                    <input
+                      type="date"
+                      id="availableFrom"
+                      name="availableFrom"
+                      class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label for="availableUntil" class="block text-gray-300 mb-2">Available Until</label>
+                    <input
+                      type="date"
+                      id="availableUntil"
+                      name="availableUntil"
+                      class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label for="description" class="block text-gray-300 mb-2">Description</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="4"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="Describe your vehicle, including condition, features, etc."
+                  required
+                ></textarea>
+              </div>
+              
+              <div>
+                <label for="picture" class="block text-gray-300 mb-2">Vehicle Image</label>
+                <div class="flex items-center justify-center w-full">
+                  <label
+                    class="flex flex-col w-full h-32 border-2 border-dashed border-gray-500 rounded-lg hover:bg-gray-700 hover:border-amber-500 transition-colors cursor-pointer"
+                  >
+                    <div class="flex flex-col items-center justify-center pt-7">
+                      <svg
+                        class="w-8 h-8 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        ></path>
+                      </svg>
+                      <p class="pt-1 text-sm text-gray-400" id="file-name">
+                        Drag and drop or click to upload
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      id="picture"
+                      name="picture"
+                      accept="image/*"
+                      class="hidden"
+                      required
+                    />
+                  </label>
+                </div>
+                <div id="preview-container" class="mt-4 hidden">
+                  <img
+                    id="image-preview"
+                    class="w-full h-48 object-cover rounded-lg"
+                    src="#"
+                    alt="Preview"
+                  />
+                </div>
+              </div>
+              
+              <div class="pt-4">
+                <button
+                  type="submit"
+                  id="submit-button"
+                  class="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg transition-colors duration-300 font-semibold"
+                >
+                  Post Vehicle for Sale
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Success Message -->
+        <div id="success-message" class="hidden bg-green-900 bg-opacity-70 p-6 rounded-lg shadow-lg text-center animate-fadeInDown">
+          <h2 class="text-xl font-semibold mb-4">Vehicle Posted Successfully!</h2>
+          <p class="text-gray-300 mb-6">Your vehicle has been listed on Motorverse.</p>
+          <div class="flex justify-center gap-4">
+            <a href="index.html" class="inline-block bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-full transition-all duration-200">
+              Return Home
+            </a>
+            <a href="buy-car.html" class="inline-block bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-full transition-all duration-200">
+              View Listings
+            </a>
+          </div>
+        </div>
+        
+        <!-- Error Message -->
+        <div id="error-message" class="hidden bg-red-900 bg-opacity-70 p-6 rounded-lg shadow-lg text-center animate-fadeInDown">
+          <h2 class="text-xl font-semibold mb-4">Error</h2>
+          <p id="error-text" class="text-gray-300 mb-6">There was an error posting your vehicle. Please try again.</p>
+          <button id="retry-button" class="inline-block bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-full transition-all duration-200">
+            Try Again
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 p-4 text-center shadow-inner">
+      <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // User Authentication Logic
+        const user = JSON.parse(localStorage.getItem("loggedInUser"));
+        const userDetail = document.getElementById("user-detail");
+        const avatar = document.getElementById("avatar");
+        const dropdown = document.getElementById("user-dropdown");
+        const dropdownName = document.getElementById("dropdown-name");
+        const dropdownEmail = document.getElementById("dropdown-email");
+        const dropdownPhone = document.getElementById("dropdown-phone");
+        const logoutBtn = document.getElementById("logout-btn");
+        const loginBtn = document.getElementById("login-btn");
+        const registerLink = document.getElementById("register-link");
+        const loginLink = document.getElementById("login-link");
+        const mobileRegisterLink = document.getElementById("mobile-register-link");
+        const mobileLoginLink = document.getElementById("mobile-login-link");
+        const returnVehicleLink = document.getElementById("return-vehicle-link");
+        const mobileReturnVehicleLink = document.getElementById("mobile-return-vehicle-link");
+        
+        // Page Elements
+        const loginRequired = document.getElementById("login-required");
+        const listingTypeSelector = document.getElementById("listing-type-selector");
+        const saleOption = document.getElementById("sale-option");
+        const rentOption = document.getElementById("rent-option");
+        const postForm = document.getElementById("post-form");
+        const formDescription = document.getElementById("form-description");
+        const priceContainer = document.getElementById("price-container");
+        const rentRateContainer = document.getElementById("rent-rate-container");
+        const rentalDatesContainer = document.getElementById("rental-dates-container");
+        const submitButton = document.getElementById("submit-button");
+        const listingTypeInput = document.getElementById("listing-type");
+        const successMessage = document.getElementById("success-message");
+        const errorMessage = document.getElementById("error-message");
+        const errorText = document.getElementById("error-text");
+        const retryButton = document.getElementById("retry-button");
+        const fileInput = document.getElementById("picture");
+        const fileName = document.getElementById("file-name");
+        const previewContainer = document.getElementById("preview-container");
+        const imagePreview = document.getElementById("image-preview");
+        const vehicleForm = document.getElementById("vehicle-form");
+        
+        // Form field elements to toggle requirement
+        const priceInput = document.getElementById("price");
+        const rentRateInput = document.getElementById("rentRate");
+        const availableFromInput = document.getElementById("availableFrom");
+        const availableUntilInput = document.getElementById("availableUntil");
+        
+        // Show avatar image (always visible)
+        avatar.style.display = "block";
+
+        if (user && user.id) {
+          // Logged in state
+          dropdownName.textContent = user.firstName || "";
+          dropdownEmail.textContent = user.email || "";
+          dropdownPhone.textContent = user.phoneNumber || "Not provided";
+          logoutBtn.classList.remove("hidden");
+          loginBtn.classList.add("hidden");
+          registerLink.style.display = "none"; // Hide Register
+          loginLink.style.display = "none"; // Hide Login
+          mobileRegisterLink.style.display = "none"; // Hide in mobile menu
+          mobileLoginLink.style.display = "none"; // Hide in mobile menu
+          returnVehicleLink.style.display = "block"; // Show Return Vehicle link
+          mobileReturnVehicleLink.style.display = "block"; // Show Return Vehicle link in mobile
+          
+          // Show the listing type selector since user is logged in
+          listingTypeSelector.classList.remove("hidden");
+        } else {
+          // Not logged in state
+          logoutBtn.classList.add("hidden");
+          loginBtn.classList.remove("hidden");
+          registerLink.style.display = "block"; // Show Register
+          loginLink.style.display = "block"; // Show Login
+          mobileRegisterLink.style.display = "block"; // Show in mobile menu
+          mobileLoginLink.style.display = "block"; // Show in mobile menu
+          returnVehicleLink.style.display = "none"; // Hide Return Vehicle link
+          mobileReturnVehicleLink.style.display = "none"; // Hide Return Vehicle link in mobile
+          
+          // Show login required message since user is not logged in
+          loginRequired.classList.remove("hidden");
+        }
+        
+        // Handle listing type selection
+        saleOption.addEventListener("click", () => {
+          selectListingType("SALE");
+          saleOption.classList.add("border-blue-500");
+          rentOption.classList.remove("border-green-500");
+        });
+        
+        rentOption.addEventListener("click", () => {
+          selectListingType("RENT");
+          rentOption.classList.add("border-green-500");
+          saleOption.classList.remove("border-blue-500");
+        });
+        
+        function selectListingType(type) {
+          listingTypeInput.value = type;
+          listingTypeSelector.classList.add("hidden");
+          postForm.classList.remove("hidden");
+          
+          if (type === "SALE") {
+            formDescription.textContent = "Fill out the details below to list your vehicle for sale on Motorverse.";
+            priceContainer.classList.remove("hidden");
+            rentRateContainer.classList.add("hidden");
+            rentalDatesContainer.classList.add("hidden");
+            submitButton.textContent = "Post Vehicle for Sale";
+            submitButton.classList.remove("bg-green-500", "hover:bg-green-600");
+            submitButton.classList.add("bg-amber-500", "hover:bg-amber-600");
+            
+            // Set required fields
+            priceInput.required = true;
+            rentRateInput.required = false;
+            availableFromInput.required = false;
+            availableUntilInput.required = false;
+          } else {
+            formDescription.textContent = "Fill out the details below to list your vehicle for rent on Motorverse.";
+            priceContainer.classList.add("hidden");
+            rentRateContainer.classList.remove("hidden");
+            rentalDatesContainer.classList.remove("hidden");
+            submitButton.textContent = "Post Vehicle for Rent";
+            submitButton.classList.remove("bg-amber-500", "hover:bg-amber-600");
+            submitButton.classList.add("bg-green-500", "hover:bg-green-600");
+            
+            // Set required fields
+            priceInput.required = false;
+            rentRateInput.required = true;
+            availableFromInput.required = true;
+            availableUntilInput.required = true;
+          }
+        }
+
+        // File input handling
+        fileInput.addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            fileName.textContent = file.name;
+            
+            // Create preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              imagePreview.src = e.target.result;
+              previewContainer.classList.remove("hidden");
+            }
+            reader.readAsDataURL(file);
+          } else {
+            fileName.textContent = "Drag and drop or click to upload";
+            previewContainer.classList.add("hidden");
+          }
+        });
+        
+        // Form submission
+        vehicleForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          
+          // Show loading state
+          const originalText = submitButton.textContent;
+          submitButton.textContent = "Uploading...";
+          submitButton.disabled = true;
+          
+          // Create FormData object
+          const formData = new FormData();
+          
+          // Add all form fields
+          const listingType = listingTypeInput.value;
+          formData.append("userId", user.id);
+          formData.append("name", document.getElementById("name").value);
+          formData.append("year", document.getElementById("year").value);
+          formData.append("listingType", listingType);
+          formData.append("location", document.getElementById("location").value);
+          formData.append("mileage", document.getElementById("mileage").value);
+          formData.append("fuelType", document.getElementById("fuelType").value);
+          formData.append("transmission", document.getElementById("transmission").value);
+          formData.append("condition", document.getElementById("condition").value);
+          formData.append("description", document.getElementById("description").value);
+          
+          // Add type-specific values
+          if (listingType === "SALE") {
+            formData.append("price", document.getElementById("price").value);
+            formData.append("rentRate", 0.0); // Empty for sale listings
+          } else {
+            formData.append("rentRate", document.getElementById("rentRate").value);
+            formData.append("price", 0.0); // Empty for rent listings
+            
+            // Format dates for backend
+            const availableFrom = document.getElementById("availableFrom").value;
+            const availableUntil = document.getElementById("availableUntil").value;
+            
+            if (availableFrom) {
+              formData.append("availableFrom", availableFrom + "T00:00:00");
+            }
+            
+            if (availableUntil) {
+              formData.append("availableUntil", availableUntil + "T23:59:59");
+            }
+          }
+          
+          // Add file
+          const pictureFile = document.getElementById("picture").files[0];
+          if (pictureFile) {
+            formData.append("picture", pictureFile);
+          }
+          
+          // First upload the image to get the filename
+          fetch("/api/vehicles/upload-image", {
+            method: "POST",
+            body: formData
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Failed to upload image");
+            }
+            return response.json();
+          })
+          .then(imageData => {
+            // Now create the listing with the image filename
+            const listingData = {
+              userId: user.id,
+              name: document.getElementById("name").value,
+              year: parseInt(document.getElementById("year").value),
+              listingType: listingType,
+              description: document.getElementById("description").value,
+              picture: imageData.filename,
+              location: document.getElementById("location").value,
+              mileage: parseInt(document.getElementById("mileage").value),
+              fuelType: document.getElementById("fuelType").value,
+              transmission: document.getElementById("transmission").value,
+              condition: document.getElementById("condition").value
+            };
+            
+            // Add type-specific values
+            if (listingType === "SALE") {
+              listingData.price = parseFloat(document.getElementById("price").value);
+            } else {
+              listingData.rentRate = parseFloat(document.getElementById("rentRate").value);
+              
+              // Format dates for backend
+              const availableFrom = document.getElementById("availableFrom").value;
+              const availableUntil = document.getElementById("availableUntil").value;
+              
+              if (availableFrom) {
+                listingData.availableFrom = availableFrom + "T00:00:00";
+              }
+              
+              if (availableUntil) {
+                listingData.availableUntil = availableUntil + "T23:59:59";
+              }
+            }
+            
+            return fetch("/api/listings", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(listingData)
+            });
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Failed to create listing");
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Reset form and show success message
+            vehicleForm.reset();
+            previewContainer.classList.add("hidden");
+            fileName.textContent = "Drag and drop or click to upload";
+            
+            postForm.classList.add("hidden");
+            successMessage.classList.remove("hidden");
+          })
+          .catch(error => {
+            console.error("Error posting vehicle:", error);
+            errorText.textContent = error.message || "There was an error posting your vehicle. Please try again.";
+            postForm.classList.add("hidden");
+            errorMessage.classList.remove("hidden");
+          })
+          .finally(() => {
+            // Reset button state
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+          });
+        });
+        
+        // Retry button
+        retryButton.addEventListener("click", () => {
+          errorMessage.classList.add("hidden");
+          postForm.classList.remove("hidden");
+        });
+
+        // Avatar dropdown toggle
+        avatar.addEventListener("click", () => {
+          dropdown.classList.toggle("hidden");
+        });
+
+        loginBtn.addEventListener("click", () => {
+          window.location.href = "/login.html";
+        });
+
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("loggedInUser");
+          localStorage.removeItem("userToken");
+          localStorage.removeItem("userId");
+          alert("Logged out successfully");
+          window.location.href = "/index.html";
+        });
+
+        // Close dropdown if clicking outside
+        document.addEventListener("click", (e) => {
+          if (!userDetail.contains(e.target)) {
+            dropdown.classList.add("hidden");
+          }
+        });
+        
+        // Mobile menu toggle
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+        
+        menuToggle.addEventListener("click", () => {
+          mobileMenu.classList.toggle("hidden");
+        });
+      });
+    </script>
+  </body>
+</html>

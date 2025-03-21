@@ -12,13 +12,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/vehicles")
@@ -162,6 +170,71 @@ public class VehicleController {
         response.put("success", true);
         response.put("additionalCharges", additionalCharges);
         return response;
+    }
+
+    @PostMapping(value = "/post", consumes = { "multipart/form-data" })
+    public Vehicle postVehicle(
+            @RequestParam("userId") int userId,
+            @RequestParam("name") String name,
+            @RequestParam("year") int year,
+            @RequestParam("price") double price,
+            @RequestParam("rentRate") double rentRate,
+            @RequestParam("description") String description,
+            @RequestParam("picture") MultipartFile picture) {
+        
+        if (userId <= 0) {
+            throw new RuntimeException("User must be logged in");
+        }
+        
+        // Create new vehicle object
+        Vehicle vehicle = new Vehicle();
+        vehicle.setName(name);
+        vehicle.setYear(year);
+        vehicle.setPrice(price);
+        vehicle.setRentRate(rentRate);
+        vehicle.setDescription(description);
+        vehicle.setStatus(Vehicle.Status.AVAILABLE); // Set as available for sale
+        
+        // Process the image
+        String imageName = saveImage(picture);
+        vehicle.setPicture(imageName);
+        
+        // Save and return the vehicle
+        return vehicleRepository.save(vehicle);
+    }
+    
+    @PostMapping(value = "/upload-image", consumes = { "multipart/form-data" })
+    public Map<String, String> uploadImage(@RequestParam("picture") MultipartFile picture) {
+        String filename = saveImage(picture);
+        Map<String, String> response = new HashMap<>();
+        response.put("filename", filename);
+        return response;
+    }
+    
+    // Helper method to save uploaded images
+    private String saveImage(MultipartFile file) {
+        try {
+            // Generate a unique filename to prevent collisions
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String newFilename = UUID.randomUUID().toString() + fileExtension;
+            
+            // Define the upload directory path
+            Path uploadDir = Paths.get("src/main/resources/static/images");
+            
+            // Create the directory if it doesn't exist
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+            
+            // Save the file
+            Path destination = Paths.get(uploadDir.toString(), newFilename);
+            Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+            
+            return newFilename;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store image: " + e.getMessage());
+        }
     }
 }
 

@@ -79,6 +79,33 @@ ALTER TABLE rentals
 
 UPDATE rentals SET status = 'RENTED' where id = 1;
 
+-- 21 March
+CREATE TABLE listings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    vehicle_id INT, -- Will be populated after inserting into vehicles table
+    name VARCHAR(100) NOT NULL, -- Car name (e.g., "Toyota Camry")
+    year INT NOT NULL, -- Model year (e.g., 2020)
+    price DECIMAL(10, 2), -- Sale price (NULL if for rent only)
+    rent_rate DECIMAL(10, 2), -- Daily rental rate (NULL if for sale only)
+    listing_type ENUM('SALE', 'RENT') NOT NULL, -- Type of listing
+    status ENUM('ACTIVE', 'RENTED', 'SOLD', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE', -- Listing status
+    description TEXT, -- Detailed description of the car
+    picture VARCHAR(255), -- File path or URL to car image (e.g., "toyota_camry_2020.jpg")
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- When the listing was created
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Last updated
+    location VARCHAR(100), -- City or area (e.g., "New York, NY")
+    mileage INT, -- Mileage in kilometers or miles
+    fuel_type ENUM('PETROL', 'DIESEL', 'ELECTRIC', 'HYBRID'), -- Fuel type
+    transmission ENUM('MANUAL', 'AUTOMATIC'), -- Transmission type
+    available_from DATETIME, -- Availability start date (for rentals)
+    available_until DATETIME, -- Availability end date (for rentals)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, -- Link to user who posted
+    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL -- Link to vehicles table
+);
+
+
+
 select * from purchases;
 use motorverse;
 select * from rentals
