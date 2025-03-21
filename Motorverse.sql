@@ -104,9 +104,20 @@ CREATE TABLE listings (
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL -- Link to vehicles table
 );
 
-
+-- 22 march
+ALTER TABLE users ADD COLUMN role VARCHAR(10) NOT NULL DEFAULT 'USER';
+ALTER TABLE users ADD COLUMN status VARCHAR(10) NOT NULL DEFAULT 'ACTIVE';
+UPDATE users SET role = 'ADMIN' WHERE email = 'admin@motorverse.com';
+UPDATE users SET role = UPPER(role);
 
 select * from purchases;
 use motorverse;
-select * from rentals
+select * from users
 
+SET SQL_SAFE_UPDATES = 0;
+DELETE FROM users 
+WHERE password = '0101';
+
+
+INSERT INTO users (email, password, first_name, last_name, date_of_birth, phone_number, role)
+VALUES ('admin@motorverse.com', 'admin123', 'Admin', 'User', '1980-01-01', '123-456-7890', 'ADMIN');
