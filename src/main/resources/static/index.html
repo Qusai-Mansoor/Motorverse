@@ -66,7 +66,7 @@
             <a
               href="return-vehicle.html"
               id="return-vehicle-link"
-              class="hover:text-blue-400 transition-colors duration-200"
+              class="hover:text-blue-400 transition-colors duration-200 hidden"
               >Return Vehicle</a
             >
             <a
@@ -85,6 +85,12 @@
               id="login-link"
               class="hover:text-blue-400 transition-colors duration-200"
               >Login</a
+            >
+            <a
+              href="admin-dashboard.html"
+              id="admin-dashboard-link"
+              class="hover:text-blue-400 transition-colors duration-200 hidden"
+              >Admin Dashboard</a
             >
           </div>
           <div id="user-detail" class="relative">
@@ -164,7 +170,7 @@
         <a
           href="return-vehicle.html"
           id="mobile-return-vehicle-link"
-          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200 hidden"
           >Return Vehicle</a
         >
         <a
@@ -183,6 +189,12 @@
           id="mobile-login-link"
           class="block py-2 hover:text-blue-400 transition-colors duration-200"
           >Login</a
+        >
+        <a
+          href="admin-dashboard.html"
+          id="mobile-admin-dashboard-link"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200 hidden"
+          >Admin Dashboard</a
         >
       </div>
     </nav>
@@ -257,7 +269,8 @@
           ></div>
           <h4 class="text-xl font-bold mb-3 relative z-10">Post a Vehicle</h4>
           <p class="text-gray-300 mb-4 relative z-10">
-            List your vehicle for sale on our platform and connect with potential buyers.
+            List your vehicle for sale on our platform and connect with
+            potential buyers.
           </p>
           <a
             href="post-vehicle.html"
@@ -291,11 +304,7 @@
 
     <script src="/script.js"></script>
     <script>
-      let count = 0;
       document.addEventListener("DOMContentLoaded", () => {
-              
-          //localStorage.clear();
-         
         const user = JSON.parse(localStorage.getItem("loggedInUser"));
         const userDetail = document.getElementById("user-detail");
         const avatar = document.getElementById("avatar");
@@ -307,11 +316,22 @@
         const loginBtn = document.getElementById("login-btn");
         const registerLink = document.getElementById("register-link");
         const loginLink = document.getElementById("login-link");
-        const mobileRegisterLink = document.getElementById("mobile-register-link");
+        const mobileRegisterLink = document.getElementById(
+          "mobile-register-link"
+        );
         const mobileLoginLink = document.getElementById("mobile-login-link");
-        const returnVehicleLink = document.getElementById("return-vehicle-link");
-        const mobileReturnVehicleLink = document.getElementById("mobile-return-vehicle-link");
-        const navLinks = document.getElementById("nav-links");
+        const returnVehicleLink = document.getElementById(
+          "return-vehicle-link"
+        );
+        const mobileReturnVehicleLink = document.getElementById(
+          "mobile-return-vehicle-link"
+        );
+        const adminDashboardLink = document.getElementById(
+          "admin-dashboard-link"
+        );
+        const mobileAdminDashboardLink = document.getElementById(
+          "mobile-admin-dashboard-link"
+        );
 
         // Show avatar image (always visible)
         avatar.style.display = "block";
@@ -323,22 +343,28 @@
           dropdownPhone.textContent = user.phoneNumber || "Not provided";
           logoutBtn.classList.remove("hidden");
           loginBtn.classList.add("hidden");
-          registerLink.style.display = "none"; // Hide Register
-          loginLink.style.display = "none"; // Hide Login
-          mobileRegisterLink.style.display = "none"; // Hide in mobile menu
-          mobileLoginLink.style.display = "none"; // Hide in mobile menu
-          returnVehicleLink.style.display = "block"; // Show Return Vehicle link
-          mobileReturnVehicleLink.style.display = "block"; // Show Return Vehicle in mobile menu
+          registerLink.classList.add("hidden");
+          loginLink.classList.add("hidden");
+          mobileRegisterLink.classList.add("hidden");
+          mobileLoginLink.classList.add("hidden");
+          returnVehicleLink.classList.remove("hidden");
+          mobileReturnVehicleLink.classList.remove("hidden");
+          if (user.role === "ADMIN") {
+            adminDashboardLink.classList.remove("hidden");
+            mobileAdminDashboardLink.classList.remove("hidden");
+          }
         } else {
           // Not logged in state
           logoutBtn.classList.add("hidden");
           loginBtn.classList.remove("hidden");
-          registerLink.style.display = "block"; // Show Register
-          loginLink.style.display = "block"; // Show Login
-          mobileRegisterLink.style.display = "block"; // Show in mobile menu
-          mobileLoginLink.style.display = "block"; // Show in mobile menu
-          returnVehicleLink.style.display = "none"; // Hide Return Vehicle link
-          mobileReturnVehicleLink.style.display = "none"; // Hide Return Vehicle in mobile menu
+          registerLink.classList.remove("hidden");
+          loginLink.classList.remove("hidden");
+          mobileRegisterLink.classList.remove("hidden");
+          mobileLoginLink.classList.remove("hidden");
+          returnVehicleLink.classList.add("hidden");
+          mobileReturnVehicleLink.classList.add("hidden");
+          adminDashboardLink.classList.add("hidden");
+          mobileAdminDashboardLink.classList.add("hidden");
         }
 
         avatar.addEventListener("click", () => {

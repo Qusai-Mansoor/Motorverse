@@ -32,6 +32,24 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role = Role.USER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status = Status.ACTIVE; // New status field
+
+    // Enum for user roles
+    public enum Role {
+        USER, ADMIN
+    }
+
+    // Enum for user status
+    public enum Status {
+        ACTIVE, INACTIVE, SUSPENDED
+    }
+
     // Constructors
     public User() {}
 
@@ -42,6 +60,19 @@ public class User {
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.phoneNumber = phoneNumber;
+        this.role = Role.USER;
+        this.status = Status.ACTIVE;
+    }
+
+    public User(String email, String password, String firstName, String lastName, LocalDate dateOfBirth, String phoneNumber, Role role) {
+        this.email = email;
+        this.password = password; // In production, hash this!
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
+        this.status = Status.ACTIVE;
     }
 
     // Getters and Setters
@@ -61,4 +92,8 @@ public class User {
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
 }
