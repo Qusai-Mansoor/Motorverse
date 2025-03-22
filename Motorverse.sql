@@ -104,20 +104,47 @@ CREATE TABLE listings (
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL -- Link to vehicles table
 );
 
--- 22 march
+
+SET SQL_SAFE_UPDATES = 0;
+-- 22 MArch (Ahmad)
 ALTER TABLE users ADD COLUMN role VARCHAR(10) NOT NULL DEFAULT 'USER';
 ALTER TABLE users ADD COLUMN status VARCHAR(10) NOT NULL DEFAULT 'ACTIVE';
 UPDATE users SET role = 'ADMIN' WHERE email = 'admin@motorverse.com';
 UPDATE users SET role = UPPER(role);
 
-select * from purchases;
-use motorverse;
-select * from users
 
-SET SQL_SAFE_UPDATES = 0;
+
 DELETE FROM users 
 WHERE password = '0101';
 
 
 INSERT INTO users (email, password, first_name, last_name, date_of_birth, phone_number, role)
 VALUES ('admin@motorverse.com', 'admin123', 'Admin', 'User', '1980-01-01', '123-456-7890', 'ADMIN');
+
+-- 22MARCH AHMED ALI
+-- Toyota Camry (Rent) - Already partially inserted by you, completing it
+INSERT INTO listings (user_id, vehicle_id, name, year, price, rent_rate, listing_type, status, description, picture, location, mileage, fuel_type, transmission, available_from, available_until)
+VALUES (4, 1, 'Toyota Camry', 2020, NULL, 50.00, 'RENT', 'ACTIVE', 'Spacious sedan with excellent fuel efficiency', 'Camry_Pic.jpg', 'Islamabad, Pakistan', 30000, 'PETROL', 'AUTOMATIC', '2025-03-23 00:00:00', '2025-12-31 23:59:59');
+
+-- Honda Civic (Sale) - User 1 (Ahmed Ali)
+INSERT INTO listings (user_id, vehicle_id, name, year, price, rent_rate, listing_type, status, description, picture, location, mileage, fuel_type, transmission)
+VALUES (1, 2, 'Honda Civic', 2019, 20000.00, NULL, 'SALE', 'ACTIVE', 'Compact and reliable, perfect for city driving', 'Civic_Pic.jpg', 'Karachi, Pakistan', 45000, 'PETROL', 'AUTOMATIC');
+
+-- Ford Mustang (Rent) - User 3 (Ahmad Khan)
+INSERT INTO listings (user_id, vehicle_id, name, year, price, rent_rate, listing_type, status, description, picture, location, mileage, fuel_type, transmission, available_from, available_until)
+VALUES (3, 3, 'Ford Mustang', 2021, NULL, 70.00, 'RENT', 'ACTIVE', 'Powerful muscle car with a bold design', 'Mustang_Pic.jpg', 'Lahore, Pakistan', 15000, 'PETROL', 'MANUAL', '2025-03-23 00:00:00', '2025-06-30 23:59:59');
+
+-- Suzuki Swift (Sale) - User 5 (Hassan Raza)
+INSERT INTO listings (user_id, vehicle_id, name, year, price, rent_rate, listing_type, status, description, picture, location, mileage, fuel_type, transmission)
+VALUES (5, 4, 'Suzuki Swift', 2020, 18000.00, NULL, 'SALE', 'ACTIVE', 'Affordable hatchback with modern features', 'Swift_Pic.jpg', 'Rawalpindi, Pakistan', 25000, 'PETROL', 'MANUAL');
+
+Alter TAble rentals 
+	Add column returned_date DATETIME;
+
+
+select * from purchases;
+use motorverse;
+select * from listings;
+select * from vehicles;
+select * from rentals;
+

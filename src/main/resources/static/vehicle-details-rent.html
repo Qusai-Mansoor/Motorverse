@@ -83,28 +83,78 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const vehicleId = urlParams.get('id');
+            const listingId = urlParams.get('id');
             let rentRate = 0;
 
-            if (vehicleId) {
-                fetch(`/api/vehicles/${vehicleId}`)
+            if (listingId) {
+                fetch(`/api/listings/${listingId}`)
                     .then(response => {
-                        if (!response.ok) throw new Error('Vehicle not found');
+                        if (!response.ok) throw new Error('Listing not found');
                         return response.json();
                     })
-                    .then(vehicle => {
-                        document.getElementById('vehicle-image').src = `/images/${vehicle.picture}`;
-                        document.getElementById('vehicle-name').textContent = `${vehicle.name} ${vehicle.year}`;
-                        document.getElementById('vehicle-rent-rate').textContent = `$${vehicle.rentRate.toFixed(2)}/day`;
-                        document.getElementById('vehicle-description').textContent = vehicle.description || 'No description available.';
-                        rentRate = vehicle.rentRate;
+                    .then(listing => {
+                        document.getElementById('vehicle-image').src = `/images/${listing.picture}`;
+                        document.getElementById('vehicle-name').textContent = `${listing.name} ${listing.year}`;
+                        document.getElementById('vehicle-rent-rate').textContent = `$${listing.rentRate.toFixed(2)}/day`;
+                        document.getElementById('vehicle-description').textContent = listing.description || 'No description available.';
+                        
+                        // Set pickup location from listing
+                        document.getElementById('pickup-location').textContent = listing.location || 'Motorverse Downtown Hub, Seattle, WA';
+
+                        // Add additional listing details to the page
+                        const detailsSection = document.querySelector('#vehicle-details .flex-1');
+                        
+                        // Create specs container before the rental days selector
+                        const specsContainer = document.createElement('div');
+                        specsContainer.className = 'grid grid-cols-2 gap-4 bg-gray-700 rounded-lg p-4 mb-4';
+                        
+                        // Add vehicle specifications
+                        if (listing.mileage) {
+                            addSpecItem(specsContainer, 'Mileage', `${listing.mileage.toLocaleString()} miles`);
+                        }
+                        if (listing.fuelType) {
+                            addSpecItem(specsContainer, 'Fuel Type', formatEnum(listing.fuelType));
+                        }
+                        if (listing.transmission) {
+                            addSpecItem(specsContainer, 'Transmission', formatEnum(listing.transmission));
+                        }
+                        if (listing.availableFrom) {
+                            addSpecItem(specsContainer, 'Available From', new Date(listing.availableFrom).toLocaleDateString());
+                        }
+                        if (listing.availableUntil) {
+                            addSpecItem(specsContainer, 'Available Until', new Date(listing.availableUntil).toLocaleDateString());
+                        }
+                        
+                        // Insert specs before rental days selector
+                        const rentalDaysLabel = document.querySelector('label[for="rental-days"]').parentNode;
+                        detailsSection.insertBefore(specsContainer, rentalDaysLabel);
+                        
+                        rentRate = listing.rentRate;
                         updateTotalCost(); // Initial calculation
                     })
                     .catch(error => {
-                        console.error('Error fetching vehicle:', error);
+                        console.error('Error fetching listing:', error);
                         document.getElementById('vehicle-name').textContent = 'Error loading vehicle';
                         document.getElementById('vehicle-rent-rate').textContent = 'N/A';
                     });
+            }
+
+            // Helper function to add spec items
+            function addSpecItem(container, label, value) {
+                const item = document.createElement('div');
+                item.innerHTML = `
+                    <p class="text-gray-400 text-sm">${label}</p>
+                    <p class="text-white">${value}</p>
+                `;
+                container.appendChild(item);
+            }
+            
+            // Helper function to format enum values
+            function formatEnum(value) {
+                if (!value) return '';
+                return value.split('_')
+                    .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+                    .join(' ');
             }
 
             // Update total cost when rental days change
@@ -123,9 +173,9 @@
                 const days = rentalDaysSelect.value;
                 const isLoggedIn = localStorage.getItem('userToken') !== null; 
                 if (isLoggedIn) {
-                    window.location.href = `/payment.html?vehicleId=${vehicleId}&days=${days}&type=rent`;
+                    window.location.href = `/payment.html?listingId=${listingId}&days=${days}&type=rent`;
                 } else {
-                    window.location.href = `/login.html?redirect=/payment.html?vehicleId=${vehicleId}&days=${days}&type=rent`;
+                    window.location.href = `/login.html?redirect=/payment.html?listingId=${listingId}&days=${days}&type=rent`;
                 }
             });
         });

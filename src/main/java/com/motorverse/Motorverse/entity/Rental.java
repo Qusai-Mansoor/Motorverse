@@ -22,6 +22,9 @@ public class Rental {
     @Column(name = "end_date")
     private LocalDateTime endDate;
     
+    @Column(name = "returned_date")
+    private LocalDateTime returnedDate;
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.RENTED;
@@ -51,6 +54,8 @@ public class Rental {
     public void setStartDate(LocalDateTime startDate) { this.startDate = startDate; }
     public LocalDateTime getEndDate() { return endDate; }
     public void setEndDate(LocalDateTime endDate) { this.endDate = endDate; }
+    public LocalDateTime getReturnedDate() { return returnedDate; }
+    public void setReturnedDate(LocalDateTime returnedDate) { this.returnedDate = returnedDate; }
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
 }

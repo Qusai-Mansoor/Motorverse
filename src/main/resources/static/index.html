@@ -70,6 +70,12 @@
               >Return Vehicle</a
             >
             <a
+              href="rental-history.html"
+              class="hover:text-blue-400 transition-colors duration-200"
+              id="rental-history-link"
+              >Rental History</a
+            >
+            <a
               href="support.html"
               class="hover:text-blue-400 transition-colors duration-200"
               >Support</a
@@ -172,6 +178,12 @@
           id="mobile-return-vehicle-link"
           class="block py-2 hover:text-blue-400 transition-colors duration-200 hidden"
           >Return Vehicle</a
+        >
+        <a
+          href="rental-history.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          id="mobile-rental-history-link"
+          >Rental History</a
         >
         <a
           href="support.html"
@@ -332,6 +344,7 @@
         const mobileAdminDashboardLink = document.getElementById(
           "mobile-admin-dashboard-link"
         );
+        const rentalHistoryLink = document.getElementById('rental-history-link');
 
         // Show avatar image (always visible)
         avatar.style.display = "block";
@@ -349,6 +362,7 @@
           mobileLoginLink.classList.add("hidden");
           returnVehicleLink.classList.remove("hidden");
           mobileReturnVehicleLink.classList.remove("hidden");
+          rentalHistoryLink.classList.remove('hidden');
           if (user.role === "ADMIN") {
             adminDashboardLink.classList.remove("hidden");
             mobileAdminDashboardLink.classList.remove("hidden");
@@ -363,6 +377,7 @@
           mobileLoginLink.classList.remove("hidden");
           returnVehicleLink.classList.add("hidden");
           mobileReturnVehicleLink.classList.add("hidden");
+          rentalHistoryLink.classList.add('hidden');
           adminDashboardLink.classList.add("hidden");
           mobileAdminDashboardLink.classList.add("hidden");
         }

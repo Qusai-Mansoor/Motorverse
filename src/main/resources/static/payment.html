@@ -194,31 +194,31 @@
             let totalCost = 0;
 
             const urlParams = new URLSearchParams(window.location.search);
-            const vehicleId = urlParams.get('vehicleId');
+            const listingId = urlParams.get('listingId');
             const days = urlParams.get('days');
             const type = urlParams.get('type');
 
-            if (vehicleId) {
-                fetch(`/api/vehicles/${vehicleId}`)
+            if (listingId) {
+                fetch(`/api/listings/${listingId}`)
                     .then(response => {
-                        if (!response.ok) throw new Error('Vehicle not found');
+                        if (!response.ok) throw new Error('Listing not found');
                         return response.json();
                     })
-                    .then(vehicle => {
-                        document.getElementById('vehicle-name').textContent = `${vehicle.name} ${vehicle.year}`;
+                    .then(listing => {
+                        document.getElementById('vehicle-name').textContent = `${listing.name} ${listing.year}`;
                         if (type === 'rent' && days) {
-                            document.getElementById('vehicle-price').textContent = `Rent Rate: $${vehicle.rentRate.toFixed(2)}/day`;
+                            document.getElementById('vehicle-price').textContent = `Rent Rate: $${listing.rentRate.toFixed(2)}/day`;
                             document.getElementById('rental-days').textContent = `Rental Duration: ${days} day${days > 1 ? 's' : ''}`;
                             document.getElementById('rental-days').classList.remove('hidden');
-                            totalCost = vehicle.rentRate * parseInt(days);
+                            totalCost = listing.rentRate * parseInt(days);
                         } else {
-                            document.getElementById('vehicle-price').textContent = `Vehicle Price: $${vehicle.price.toFixed(2)}`;
-                            totalCost = vehicle.price;
+                            document.getElementById('vehicle-price').textContent = `Vehicle Price: $${listing.price.toFixed(2)}`;
+                            totalCost = listing.price;
                         }
                         document.getElementById('total-cost').textContent = `$${totalCost.toFixed(2)}`;
                     })
                     .catch(error => {
-                        console.error('Error fetching vehicle:', error);
+                        console.error('Error fetching listing:', error);
                         document.getElementById('vehicle-name').textContent = 'Error loading vehicle';
                         document.getElementById('vehicle-price').textContent = 'N/A';
                         document.getElementById('total-cost').textContent = '$0.00';
@@ -294,12 +294,14 @@
                         throw new Error('User not logged in');
                     }
 
-                    const endpoint = type === 'rent' ? '/api/vehicles/rent' : '/api/vehicles/purchase';
+                    const endpoint = '/api/listings/transaction';
                     const paymentData = {
                         userId: userId,
-                        vehicleId: parseInt(vehicleId),
+                        listingId: parseInt(listingId),
+                        transactionType: type.toUpperCase(), // 'RENT' or 'BUY'
                         paymentMethod: activeMethod.toUpperCase().replace('-', '_'),
-                        ...(type === 'rent' ? { days: parseInt(days) } : {}) // Add days only for rent
+                        amount: totalCost,
+                        ...(type === 'rent' ? { rentalDays: parseInt(days) } : {}) // Add days only for rent
                     };
 
                     console.log('Sending payment data to', endpoint, ':', paymentData);
@@ -360,8 +362,7 @@
 
                     // Download PDF handler
                     document.getElementById('download-invoice').addEventListener('click', () => {
-                        // Here you would implement PDF generation
-                        // For now, we'll just show an alert
+                     
                         alert('PDF download feature coming soon!');
                     });
 

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motorverse - Your Rental History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        
+        .history-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .history-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400">Motorverse</h1>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="hover:text-blue-400 transition-colors duration-200">Home</a>
+                <a href="buy-car.html" class="hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+                <a href="rent-car.html" class="hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+                <a href="rental-history.html" class="text-blue-400 transition-colors duration-200">Rental History</a>
+                <a href="support.html" class="hover:text-blue-400 transition-colors duration-200">Support</a>
+                <div id="user-menu" class="hidden relative">
+                    <button id="user-dropdown-btn" class="flex items-center hover:text-blue-400 transition-colors duration-200">
+                        <span id="username">User</span>
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-gray-700 rounded-md shadow-lg py-1 z-50">
+                        <a href="rental-history.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-600">Rental History</a>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-white hover:bg-gray-600">Log Out</a>
+                    </div>
+                </div>
+                <a href="login.html" id="login-btn" class="hover:text-blue-400 transition-colors duration-200">Login</a>
+                <a href="register.html" id="register-btn" class="hover:text-blue-400 transition-colors duration-200">Register</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg">
+            <a href="index.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Home</a>
+            <a href="buy-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+            <a href="rent-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+            <a href="rental-history.html" class="block py-2 text-blue-400 transition-colors duration-200">Rental History</a>
+            <a href="support.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Support</a>
+            <a href="login.html" id="mobile-login-btn" class="block py-2 hover:text-blue-400 transition-colors duration-200">Login</a>
+            <a href="register.html" id="mobile-register-btn" class="block py-2 hover:text-blue-400 transition-colors duration-200">Register</a>
+            <a href="#" id="mobile-logout-btn" class="hidden block py-2 hover:text-blue-400 transition-colors duration-200">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-6">
+        <h1 class="text-4xl font-bold text-center mb-8 fade-in">Your Rental History</h1>
+
+        <!-- Login Required Message -->
+        <div id="login-required" class="hidden bg-red-900 p-6 rounded-lg shadow-lg text-center mb-8">
+            <h2 class="text-xl font-semibold mb-4">Please Login First</h2>
+            <p class="text-gray-300 mb-4">You need to be logged in to view your rental history.</p>
+            <a href="login.html?redirect=/rental-history.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full transition-all duration-200">Login Now</a>
+        </div>
+
+        <!-- No Rentals Message -->
+        <div id="no-rentals" class="hidden bg-gray-800 p-6 rounded-lg shadow-lg text-center mb-8">
+            <h2 class="text-xl font-semibold mb-4">No Rental History Found</h2>
+            <p class="text-gray-300 mb-4">You haven't rented any vehicles yet.</p>
+            <a href="rent-car.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full transition-all duration-200">Browse Rental Cars</a>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="text-center py-12">
+            <div class="inline-block animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mb-4"></div>
+            <p class="text-xl text-gray-400">Loading your rental history...</p>
+        </div>
+
+        <!-- Rental History List -->
+        <div id="rental-history" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Rental cards will be populated here dynamically -->
+        </div>
+    </main>
+
+    <!-- Rental Detail Modal -->
+    <div id="rental-detail-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg w-full max-w-4xl mx-4 overflow-hidden shadow-2xl transform transition-all">
+            <!-- Modal content will be populated dynamically -->
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 id="modal-title" class="text-2xl font-bold">Rental Details</h2>
+                    <button id="close-modal" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="modal-content" class="overflow-y-auto max-h-[70vh]">
+                    <!-- Content will be populated here -->
+                    <div class="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto my-8"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 p-4 text-center shadow-inner">
+        <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const userMenu = document.getElementById('user-menu');
+            const username = document.getElementById('username');
+            const userDropdownBtn = document.getElementById('user-dropdown-btn');
+            const userDropdown = document.getElementById('user-dropdown');
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const mobileLoginBtn = document.getElementById('mobile-login-btn');
+            const mobileRegisterBtn = document.getElementById('mobile-register-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+            const loginRequired = document.getElementById('login-required');
+            const noRentals = document.getElementById('no-rentals');
+            const loading = document.getElementById('loading');
+            const rentalHistory = document.getElementById('rental-history');
+            const rentalDetailModal = document.getElementById('rental-detail-modal');
+            const modalContent = document.getElementById('modal-content');
+            const closeModal = document.getElementById('close-modal');
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            // Mobile menu toggle
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // User Authentication
+            const userToken = localStorage.getItem('userToken');
+            const userId = localStorage.getItem('userId');
+            const userData = localStorage.getItem('loggedInUser');
+            let user = null;
+
+            if (userToken && userId && userData) {
+                try {
+                    user = JSON.parse(userData);
+                    
+                    // Show user menu, hide login/register buttons
+                    userMenu.classList.remove('hidden');
+                    loginBtn.classList.add('hidden');
+                    registerBtn.classList.add('hidden');
+                    mobileLoginBtn.classList.add('hidden');
+                    mobileRegisterBtn.classList.add('hidden');
+                    mobileLogoutBtn.classList.remove('hidden');
+                    
+                    // Set username
+                    if (user.firstName) {
+                        username.textContent = user.firstName;
+                    }
+                    
+                    // Load rental history
+                    loadRentalHistory(userId);
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                    showLoginRequired();
+                }
+            } else {
+                showLoginRequired();
+            }
+
+            // User dropdown toggle
+            userDropdownBtn.addEventListener('click', () => {
+                userDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!userDropdownBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+
+            // Logout functionality
+            logoutBtn.addEventListener('click', logout);
+            mobileLogoutBtn.addEventListener('click', logout);
+
+            // Close modal
+            closeModal.addEventListener('click', () => {
+                rentalDetailModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            });
+
+            // Close modal when clicking outside
+            rentalDetailModal.addEventListener('click', (e) => {
+                if (e.target === rentalDetailModal) {
+                    rentalDetailModal.classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                }
+            });
+
+            // Load rental history
+            function loadRentalHistory(userId) {
+                fetch(`/api/rental-history/user/${userId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to load rental history');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        loading.classList.add('hidden');
+                        
+                        if (data.length === 0) {
+                            noRentals.classList.remove('hidden');
+                        } else {
+                            rentalHistory.classList.remove('hidden');
+                            renderRentalHistory(data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading rental history:', error);
+                        loading.classList.add('hidden');
+                        
+                        // Show error message
+                        rentalHistory.classList.remove('hidden');
+                        rentalHistory.innerHTML = `
+                            <div class="col-span-full bg-red-900 bg-opacity-40 p-6 rounded-lg text-center">
+                                <p class="text-xl mb-2">Failed to load rental history</p>
+                                <p>Please try again later</p>
+                            </div>
+                        `;
+                    });
+            }
+
+            // Render rental history
+            function renderRentalHistory(rentalData) {
+                rentalHistory.innerHTML = '';
+                
+                rentalData.forEach(item => {
+                    const rental = item.rental;
+                    const vehicle = item.vehicle;
+                    
+                    if (!rental || !vehicle) return;
+                    
+                    // Format dates
+                    const startDate = new Date(rental.startDate).toLocaleDateString();
+                    const endDate = new Date(rental.endDate).toLocaleDateString();
+                    const status = rental.status;
+                    
+                    // Create rental card
+                    const card = document.createElement('div');
+                    card.className = 'history-card bg-gray-800 rounded-lg overflow-hidden shadow-lg';
+                    
+                    card.innerHTML = `
+                        <div class="h-48 overflow-hidden">
+                            <img src="/images/${vehicle.picture || 'default-car.jpg'}" 
+                                 alt="${vehicle.name}" 
+                                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-xl font-bold">${vehicle.name} ${vehicle.year}</h3>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${
+                                    status === 'RENTED' 
+                                    ? 'bg-green-600 text-white' 
+                                    : 'bg-gray-600 text-white'
+                                }">${formatStatus(status)}</span>
+                            </div>
+                            
+                            <div class="space-y-1 mb-4 text-gray-300">
+                                <p><span class="text-gray-400">Rented on:</span> ${startDate}</p>
+                                <p><span class="text-gray-400">Due back:</span> ${endDate}</p>
+                                <p><span class="text-gray-400">Daily Rate:</span> $${vehicle.rentRate.toFixed(2)}</p>
+                            </div>
+                            
+                            <button class="view-details w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                                    data-rental-id="${rental.id}">
+                                View Details
+                            </button>
+                        </div>
+                    `;
+                    
+                    rentalHistory.appendChild(card);
+                    
+                    // Add event listener to view details button
+                    const viewDetailsBtn = card.querySelector('.view-details');
+                    viewDetailsBtn.addEventListener('click', () => {
+                        showRentalDetails(rental.id);
+                    });
+                });
+            }
+
+            // Show rental details modal
+            function showRentalDetails(rentalId) {
+                // Show modal with loading state
+                rentalDetailModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                modalContent.innerHTML = `
+                    <div class="flex justify-center py-8">
+                        <div class="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+                    </div>
+                `;
+                
+                // Fetch rental details
+                fetch(`/api/rental-history/${rentalId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to load rental details');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const rental = data.rental;
+                        const vehicle = data.vehicle;
+                        
+                        // Format dates
+                        const startDate = new Date(rental.startDate).toLocaleDateString();
+                        const endDate = new Date(rental.endDate).toLocaleDateString();
+                        const returnedDate = rental.status === 'RETURNED' && rental.returnedDate 
+                            ? new Date(rental.returnedDate).toLocaleDateString() 
+                            : null;
+                        
+                        // Calculate rental duration in days
+                        const start = new Date(rental.startDate);
+                        const end = new Date(rental.endDate);
+                        const durationDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
+                        
+                        // Calculate total cost
+                        const totalCost = vehicle.rentRate * durationDays;
+                        
+                        // Populate modal content
+                        modalContent.innerHTML = `
+                            <div class="md:flex">
+                                <div class="md:w-1/2 mb-4 md:mb-0">
+                                    <img src="/images/${vehicle.picture || 'default-car.jpg'}" 
+                                         alt="${vehicle.name}" 
+                                         class="w-full h-64 object-cover rounded-lg">
+                                </div>
+                                <div class="md:w-1/2 md:pl-6">
+                                    <h3 class="text-2xl font-bold mb-2">${vehicle.name} ${vehicle.year}</h3>
+                                    <p class="text-gray-400 mb-4">${vehicle.description || 'No description available.'}</p>
+                                    
+                                    <div class="grid grid-cols-2 gap-3 mb-4">
+                                        <div class="text-gray-300">
+                                            <p class="text-sm text-gray-400">Status</p>
+                                            <p>${formatStatus(rental.status)}</p>
+                                        </div>
+                                        <div class="text-gray-300">
+                                            <p class="text-sm text-gray-400">Daily Rate</p>
+                                            <p>$${vehicle.rentRate.toFixed(2)}</p>
+                                        </div>
+                                        <div class="text-gray-300">
+                                            <p class="text-sm text-gray-400">Start Date</p>
+                                            <p>${startDate}</p>
+                                        </div>
+                                        <div class="text-gray-300">
+                                            <p class="text-sm text-gray-400">End Date</p>
+                                            <p>${endDate}</p>
+                                        </div>
+                                        ${returnedDate ? `
+                                        <div class="text-gray-300">
+                                            <p class="text-sm text-gray-400">Returned Date</p>
+                                            <p>${returnedDate}</p>
+                                        </div>` : ''}
+                                        <div class="text-gray-300">
+                                            <p class="text-sm text-gray-400">Duration</p>
+                                            <p>${durationDays} day${durationDays !== 1 ? 's' : ''}</p>
+                                        </div>
+                                        <div class="text-gray-300">
+                                            <p class="text-sm text-gray-400">Total Cost</p>
+                                            <p>$${totalCost.toFixed(2)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 pt-6 border-t border-gray-700">
+                                <h4 class="text-lg font-semibold mb-2">Vehicle Specifications</h4>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    ${vehicle.transmission ? `
+                                    <div class="text-gray-300">
+                                        <p class="text-sm text-gray-400">Transmission</p>
+                                        <p>${formatEnum(vehicle.transmission)}</p>
+                                    </div>` : ''}
+                                    ${vehicle.fuelType ? `
+                                    <div class="text-gray-300">
+                                        <p class="text-sm text-gray-400">Fuel Type</p>
+                                        <p>${formatEnum(vehicle.fuelType)}</p>
+                                    </div>` : ''}
+                                    ${vehicle.condition ? `
+                                    <div class="text-gray-300">
+                                        <p class="text-sm text-gray-400">Condition</p>
+                                        <p>${formatEnum(vehicle.condition)}</p>
+                                    </div>` : ''}
+                                    ${vehicle.mileage ? `
+                                    <div class="text-gray-300">
+                                        <p class="text-sm text-gray-400">Mileage</p>
+                                        <p>${vehicle.mileage.toLocaleString()} miles</p>
+                                    </div>` : ''}
+                                    ${vehicle.color ? `
+                                    <div class="text-gray-300">
+                                        <p class="text-sm text-gray-400">Color</p>
+                                        <p>${vehicle.color}</p>
+                                    </div>` : ''}
+                                </div>
+                            </div>
+                            
+                            ${rental.status === 'RENTED' ? `
+                            <div class="mt-6 text-center">
+                                <a href="return-vehicle.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors duration-200">
+                                    Return This Vehicle
+                                </a>
+                            </div>` : ''}
+                        `;
+                    })
+                    .catch(error => {
+                        console.error('Error loading rental details:', error);
+                        modalContent.innerHTML = `
+                            <div class="text-center py-6">
+                                <p class="text-red-400 text-lg mb-2">Failed to load rental details</p>
+                                <p>Please try again later</p>
+                            </div>
+                        `;
+                    });
+            }
+
+            // Helper function to format status
+            function formatStatus(status) {
+                switch(status) {
+                    case 'RENTED': return 'Active Rental';
+                    case 'RETURNED': return 'Returned';
+                    default: return status;
+                }
+            }
+            
+            // Helper function to format enum values
+            function formatEnum(value) {
+                if (!value) return '';
+                return value.split('_')
+                    .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+                    .join(' ');
+            }
+
+            // Show login required message
+            function showLoginRequired() {
+                loading.classList.add('hidden');
+                loginRequired.classList.remove('hidden');
+            }
+
+            // Logout function
+            function logout(e) {
+                e.preventDefault();
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('loggedInUser');
+                window.location.href = '/login.html';
+            }
+        });
+    </script>
+</body>
+</html>

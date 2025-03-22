@@ -47,6 +47,9 @@
                     <h2 id="vehicle-name" class="text-3xl font-bold"></h2>
                     <p id="vehicle-price" class="text-xl text-gray-300"></p>
                     <p id="vehicle-description" class="text-gray-400"></p>
+                    
+                    <!-- Specifications will be added here dynamically -->
+                    
                     <button id="buy-now" class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105">Buy Now</button>
                 </div>
             </div>
@@ -61,30 +64,79 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const vehicleId = urlParams.get('id');
+            const listingId = urlParams.get('id');
 
-            if (vehicleId) {
-                fetch(`/api/vehicles/${vehicleId}`)
-                    .then(response => response.json())
-                    .then(vehicle => {
-                        document.getElementById('vehicle-image').src = `/images/${vehicle.picture}`;
-                        document.getElementById('vehicle-name').textContent = `${vehicle.name} ${vehicle.year}`;
-                        document.getElementById('vehicle-price').textContent = `$${vehicle.price.toFixed(2)}`;
-                        document.getElementById('vehicle-description').textContent = vehicle.description || 'No description available.';
+            if (listingId) {
+                fetch(`/api/listings/${listingId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Listing not found');
+                        return response.json();
                     })
-                    .catch(error => console.error('Error fetching vehicle:', error));
+                    .then(listing => {
+                        document.getElementById('vehicle-image').src = `/images/${listing.picture}`;
+                        document.getElementById('vehicle-name').textContent = `${listing.name} ${listing.year}`;
+                        document.getElementById('vehicle-price').textContent = `$${listing.price.toFixed(2)}`;
+                        document.getElementById('vehicle-description').textContent = listing.description || 'No description available.';
+                        
+                        // Add specifications section
+                        const detailsSection = document.querySelector('#vehicle-details .flex-1');
+                        const specsContainer = document.createElement('div');
+                        specsContainer.className = 'grid grid-cols-2 gap-4 bg-gray-700 rounded-lg p-4 mb-4';
+                        
+                        // Add vehicle specifications
+                        if (listing.mileage) {
+                            addSpecItem(specsContainer, 'Mileage', `${listing.mileage.toLocaleString()} miles`);
+                        }
+                        if (listing.fuelType) {
+                            addSpecItem(specsContainer, 'Fuel Type', formatEnum(listing.fuelType));
+                        }
+                        if (listing.transmission) {
+                            addSpecItem(specsContainer, 'Transmission', formatEnum(listing.transmission));
+                        }
+                        if (listing.condition) {
+                            addSpecItem(specsContainer, 'Condition', formatEnum(listing.condition));
+                        }
+                        if (listing.location) {
+                            addSpecItem(specsContainer, 'Location', listing.location);
+                        }
+                        
+                        // Insert specs before the buy now button
+                        const buyNowButton = document.getElementById('buy-now');
+                        detailsSection.insertBefore(specsContainer, buyNowButton);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching listing:', error);
+                        document.getElementById('vehicle-name').textContent = 'Error loading vehicle';
+                        document.getElementById('vehicle-price').textContent = 'N/A';
+                    });
+            }
+            
+            // Helper function to add spec items
+            function addSpecItem(container, label, value) {
+                const item = document.createElement('div');
+                item.innerHTML = `
+                    <p class="text-gray-400 text-sm">${label}</p>
+                    <p class="text-white">${value}</p>
+                `;
+                container.appendChild(item);
+            }
+            
+            // Helper function to format enum values
+            function formatEnum(value) {
+                if (!value) return '';
+                return value.split('_')
+                    .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+                    .join(' ');
             }
 
             document.getElementById('buy-now').addEventListener('click', (e) => {
                 e.preventDefault();
-                const isLoggedIn = localStorage.getItem('userId') !== null;
+                const isLoggedIn = localStorage.getItem('userToken') !== null;
                 
-               if (isLoggedIn) {
-                    alert('You are logged in. Proceeding to payment.');
-                    window.location.href = `/payment.html?vehicleId=${vehicleId}`;
+                if (isLoggedIn) {
+                    window.location.href = `/payment.html?listingId=${listingId}&type=buy`;
                 } else {
-                    alert('You need to log in to proceed with the purchase.');
-                    window.location.href = '/login.html?redirect=/payment.html?vehicleId=' + vehicleId;
+                    window.location.href = `/login.html?redirect=/payment.html?listingId=${listingId}&type=buy`;
                 }
             });
         });

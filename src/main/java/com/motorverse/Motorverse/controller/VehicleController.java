@@ -157,6 +157,9 @@ public class VehicleController {
             additionalCharges += (request.getDamagePercentage() / 100.0) * vehicle.getPrice();
         }
         
+        // Set returned date
+        rental.setReturnedDate(LocalDateTime.now());
+        
         // Update rental status
         rental.setStatus(Rental.Status.RETURNED);
         rentalRepository.save(rental);

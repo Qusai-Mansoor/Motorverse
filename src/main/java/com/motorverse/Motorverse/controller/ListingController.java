@@ -1,8 +1,12 @@
 package com.motorverse.Motorverse.controller;
 
 import com.motorverse.Motorverse.entity.Listing;
+import com.motorverse.Motorverse.entity.Purchase;
+import com.motorverse.Motorverse.entity.Rental;
 import com.motorverse.Motorverse.entity.Vehicle;
 import com.motorverse.Motorverse.repository.ListingRepository;
+import com.motorverse.Motorverse.repository.PurchaseRepository;
+import com.motorverse.Motorverse.repository.RentalRepository;
 import com.motorverse.Motorverse.repository.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +23,12 @@ public class ListingController {
 
     @Autowired
     private VehicleRepository vehicleRepository;
+    
+    @Autowired
+    private RentalRepository rentalRepository;
+    
+    @Autowired
+    private PurchaseRepository purchaseRepository;
 
     // Get all active listings for sale
     @GetMapping("/buy")
@@ -30,6 +40,14 @@ public class ListingController {
     @GetMapping("/rent")
     public List<Listing> getListingsForRent() {
         return listingRepository.findByListingTypeAndStatus(Listing.ListingType.RENT, Listing.ListingStatus.ACTIVE);
+    }
+
+    // Get a listing by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Listing> getListingById(@PathVariable int id) {
+        return listingRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // Create a new listing and sync with vehicles table
@@ -78,6 +96,119 @@ public class ListingController {
         listingRepository.save(savedListing);
 
         return ResponseEntity.ok(savedListing);
+    }
+
+    // Process a transaction (purchase or rental)
+    @PostMapping("/transaction")
+    public ResponseEntity<?> processTransaction(@RequestBody TransactionRequest request) {
+        try {
+            // Validate request
+            if (request.getUserId() <= 0 || request.getListingId() <= 0) {
+                return ResponseEntity.badRequest().body("Invalid user or listing ID");
+            }
+
+            // Get the listing
+            Listing listing = listingRepository.findById(request.getListingId())
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+            // Check if listing is still active
+            if (listing.getStatus() != Listing.ListingStatus.ACTIVE) {
+                return ResponseEntity.badRequest().body("This listing is no longer available");
+            }
+            
+            // Get the associated vehicle
+            if (listing.getVehicleId() == null) {
+                return ResponseEntity.badRequest().body("No vehicle associated with this listing");
+            }
+            
+            Vehicle vehicle = vehicleRepository.findById(listing.getVehicleId())
+                .orElseThrow(() -> new RuntimeException("Associated vehicle not found"));
+
+            // Generate transaction ID
+            String transactionId = generateTransactionId();
+            
+            // Record the transaction based on type
+            if ("buy".equalsIgnoreCase(request.getTransactionType())) {
+                // Create purchase record
+                Purchase purchase = new Purchase();
+                purchase.setUserId(request.getUserId());
+                purchase.setVehicleId(vehicle.getId());
+                purchase.setPurchaseDate(LocalDateTime.now());
+                purchase.setPaymentMethod(Purchase.PaymentMethod.valueOf(request.getPaymentMethod()));
+                purchase.setAmount(request.getAmount());
+                purchase.setTransactionId(transactionId);
+                purchase.setStatus(Purchase.Status.COMPLETED);
+                
+                purchaseRepository.save(purchase);
+                
+                // Update listing status
+                listing.setStatus(Listing.ListingStatus.SOLD);
+                
+                // Update vehicle status
+                vehicle.setStatus(Vehicle.Status.SOLD);
+            } 
+            else if ("rent".equalsIgnoreCase(request.getTransactionType())) {
+                if (request.getRentalDays() == null || request.getRentalDays() <= 0) {
+                    return ResponseEntity.badRequest().body("Invalid rental duration");
+                }
+                
+                // Calculate rental end date
+                LocalDateTime endDate = LocalDateTime.now().plusDays(request.getRentalDays());
+                
+                // Create rental record
+                Rental rental = new Rental();
+                rental.setUserId(request.getUserId());
+                rental.setVehicleId(vehicle.getId());
+                rental.setStartDate(LocalDateTime.now());
+                rental.setEndDate(endDate);
+                rental.setStatus(Rental.Status.RENTED);
+                
+                rentalRepository.save(rental);
+                
+                // Also create a purchase record for the payment
+                Purchase purchase = new Purchase();
+                purchase.setUserId(request.getUserId());
+                purchase.setVehicleId(vehicle.getId());
+                purchase.setPurchaseDate(LocalDateTime.now());
+                purchase.setPaymentMethod(Purchase.PaymentMethod.valueOf(request.getPaymentMethod()));
+                purchase.setAmount(request.getAmount());
+                purchase.setTransactionId(transactionId);
+                purchase.setStatus(Purchase.Status.COMPLETED);
+                
+                purchaseRepository.save(purchase);
+                
+                // Update listing status
+                listing.setStatus(Listing.ListingStatus.RENTED);
+                
+                // Update vehicle status
+                vehicle.setStatus(Vehicle.Status.RENTED);
+            } 
+            else {
+                return ResponseEntity.badRequest().body("Invalid transaction type: " + request.getTransactionType());
+            }
+
+            // Save updated listing and vehicle
+            listingRepository.save(listing);
+            vehicleRepository.save(vehicle);
+
+            // Create response
+            TransactionResponse response = new TransactionResponse();
+            response.setTransactionId(transactionId);
+            response.setListingId(listing.getId());
+            response.setUserId(request.getUserId());
+            response.setAmount(request.getAmount());
+            response.setTransactionType(request.getTransactionType());
+            response.setTimestamp(LocalDateTime.now());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Transaction failed: " + e.getMessage());
+        }
+    }
+    
+    // Helper method to generate a transaction ID
+    private String generateTransactionId() {
+        return "TRX-" + System.currentTimeMillis() + "-" + (int)(Math.random() * 10000);
     }
 }
 
@@ -129,4 +260,52 @@ class ListingRequest {
     public void setAvailableFrom(LocalDateTime availableFrom) { this.availableFrom = availableFrom; }
     public LocalDateTime getAvailableUntil() { return availableUntil; }
     public void setAvailableUntil(LocalDateTime availableUntil) { this.availableUntil = availableUntil; }
+}
+
+// Request class for transactions
+class TransactionRequest {
+    private int userId;
+    private int listingId;
+    private String transactionType; // "BUY" or "RENT"
+    private String paymentMethod;
+    private double amount;
+    private Integer rentalDays; // Optional, for rentals only
+
+    // Getters and Setters
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
+    public int getListingId() { return listingId; }
+    public void setListingId(int listingId) { this.listingId = listingId; }
+    public String getTransactionType() { return transactionType; }
+    public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) { this.amount = amount; }
+    public Integer getRentalDays() { return rentalDays; }
+    public void setRentalDays(Integer rentalDays) { this.rentalDays = rentalDays; }
+}
+
+// Response class for successful transactions
+class TransactionResponse {
+    private String transactionId;
+    private int listingId;
+    private int userId;
+    private double amount;
+    private String transactionType;
+    private LocalDateTime timestamp;
+
+    // Getters and Setters
+    public String getTransactionId() { return transactionId; }
+    public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
+    public int getListingId() { return listingId; }
+    public void setListingId(int listingId) { this.listingId = listingId; }
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) { this.amount = amount; }
+    public String getTransactionType() { return transactionType; }
+    public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 }
