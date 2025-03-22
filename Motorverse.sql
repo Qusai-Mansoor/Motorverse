@@ -40,6 +40,18 @@ CREATE TABLE rentals (
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(id)
 );
 
+CREATE TABLE support_tickets (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    issue_title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    status ENUM('OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED') DEFAULT 'OPEN',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    resolution TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Sample Data
 INSERT INTO users (email, password, first_name, last_name, date_of_birth, phone_number) VALUES
 ('user1@example.com', 'pass123', 'Ahmed', 'Ali', '1995-03-15', '+923001234567'),

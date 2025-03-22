@@ -219,6 +219,9 @@ public class VehicleController {
         try {
             // Generate a unique filename to prevent collisions
             String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || originalFilename.isEmpty()) {
+                throw new RuntimeException("Uploaded file must have a valid name");
+            }
             String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String newFilename = UUID.randomUUID().toString() + fileExtension;
             
