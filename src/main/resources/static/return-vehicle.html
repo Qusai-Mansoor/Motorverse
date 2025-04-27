@@ -381,6 +381,7 @@
                     <p><span class="font-semibold">Due Back:</span> ${endDate}</p>
                   </div>
                   
+
                   <div class="mt-6 flex justify-end">
                     <button class="return-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
                             data-rental='${JSON.stringify(rental)}'
@@ -459,7 +460,7 @@
         confirmReturn.addEventListener('click', () => {
           const damagePercent = parseInt(damagePercentage.value);
           
-          // Send return request to server
+          // Send return request to server with vehicle ID for listing update
           fetch('/api/vehicles/return-vehicle', {
             method: 'POST',
             headers: {
@@ -467,6 +468,7 @@
             },
             body: JSON.stringify({
               rentalId: currentRental.id,
+              vehicleId: currentVehicle.id, 
               damagePercentage: damagePercent
             })
           })

@@ -15,6 +15,23 @@
             background: linear-gradient(135deg, #1f2937, #374151); /* gray-800 to gray-700 */
             border: 2px solid #10b981; /* green-500 */
         }
+        .insurance-option {
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .insurance-option:hover {
+            transform: translateY(-2px);
+        }
+        .insurance-option.selected {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        .insurance-option input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
@@ -63,9 +80,59 @@
                             <option value="30">30 Days</option>
                         </select>
                     </div>
+                    
+                    <!-- Insurance Options -->
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold mb-3">Insurance Options</h3>
+                        <div class="space-y-3">
+                            <!-- No Insurance Option -->
+                            <label class="insurance-option block p-3 bg-gray-700 rounded-lg cursor-pointer">
+                                <input type="radio" name="insurance" value="none" data-cost="0" data-name="No Insurance" checked>
+                                <div class="flex justify-between">
+                                    <span class="font-medium">No Insurance</span>
+                                    <span class="text-gray-300">$0.00</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-1">Rent without additional insurance coverage.</p>
+                            </label>
+                            
+                            <!-- Basic Insurance Option -->
+                            <label class="insurance-option block p-3 bg-gray-700 rounded-lg cursor-pointer">
+                                <input type="radio" name="insurance" value="basic" data-cost="15" data-name="Basic Coverage">
+                                <div class="flex justify-between">
+                                    <span class="font-medium">Basic Coverage</span>
+                                    <span class="text-gray-300">$15.00/day</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-1">Basic liability coverage with $1,000 deductible.</p>
+                            </label>
+                            
+                            <!-- Premium Insurance Option -->
+                            <label class="insurance-option block p-3 bg-gray-700 rounded-lg cursor-pointer">
+                                <input type="radio" name="insurance" value="premium" data-cost="25" data-name="Premium Coverage">
+                                <div class="flex justify-between">
+                                    <span class="font-medium">Premium Coverage</span>
+                                    <span class="text-gray-300">$25.00/day</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-1">Full coverage with $500 deductible and 24/7 roadside assistance.</p>
+                            </label>
+                            
+                            <!-- Comprehensive Insurance Option -->
+                            <label class="insurance-option block p-3 bg-gray-700 rounded-lg cursor-pointer">
+                                <input type="radio" name="insurance" value="comprehensive" data-cost="35" data-name="Comprehensive Coverage">
+                                <div class="flex justify-between">
+                                    <span class="font-medium">Comprehensive Coverage</span>
+                                    <span class="text-gray-300">$35.00/day</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-1">Zero deductible with full coverage, roadside assistance, and personal injury protection.</p>
+                            </label>
+                        </div>
+                    </div>
+                    
                     <div class="total-box p-4 rounded-lg mb-4">
                         <p class="text-lg">Total Rental Cost</p>
                         <p id="total-cost" class="text-2xl font-bold text-green-400">$0.00</p>
+                        <div id="insurance-cost-display" class="text-sm text-gray-300 hidden">
+                            Includes <span id="insurance-type-display"></span>: <span id="insurance-cost-amount"></span>
+                        </div>
                     </div>
                     <p class="text-gray-300"><strong>Pickup Location:</strong> <span id="pickup-location">Motorverse Downtown Hub, Seattle, WA</span></p>
                     <a id="rent-now" href="#" class="block w-full bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105">Rent Now</a>
@@ -85,6 +152,11 @@
             const urlParams = new URLSearchParams(window.location.search);
             const listingId = urlParams.get('id');
             let rentRate = 0;
+            let selectedInsurance = {
+                type: 'none',
+                name: 'No Insurance',
+                cost: 0
+            };
 
             if (listingId) {
                 fetch(`/api/listings/${listingId}`)
@@ -99,7 +171,7 @@
                         document.getElementById('vehicle-description').textContent = listing.description || 'No description available.';
                         
                         // Set pickup location from listing
-                        document.getElementById('pickup-location').textContent = listing.location || 'Motorverse Downtown Hub, Seattle, WA';
+                        document.getElementById('pickup-location').textContent = listing.location || 'Motorverse Hub, Rawalpindi, Pakistan';
 
                         // Add additional listing details to the page
                         const detailsSection = document.querySelector('#vehicle-details .flex-1');
@@ -157,14 +229,66 @@
                     .join(' ');
             }
 
+            // Insurance selection
+            const insuranceOptions = document.querySelectorAll('input[name="insurance"]');
+            const insuranceCostDisplay = document.getElementById('insurance-cost-display');
+            const insuranceTypeDisplay = document.getElementById('insurance-type-display');
+            const insuranceCostAmount = document.getElementById('insurance-cost-amount');
+            
+            // Add event listeners to insurance options
+            insuranceOptions.forEach(option => {
+                const parentLabel = option.closest('.insurance-option');
+                
+                // Initial setup for the checked option
+                if (option.checked) {
+                    parentLabel.classList.add('selected');
+                }
+                
+                option.addEventListener('change', () => {
+                    // Update selected class
+                    document.querySelectorAll('.insurance-option').forEach(label => {
+                        label.classList.remove('selected');
+                    });
+                    parentLabel.classList.add('selected');
+                    
+                    // Update selected insurance details
+                    selectedInsurance = {
+                        type: option.value,
+                        name: option.getAttribute('data-name'),
+                        cost: parseFloat(option.getAttribute('data-cost'))
+                    };
+                    
+                    // Show/hide insurance cost display
+                    if (selectedInsurance.type === 'none') {
+                        insuranceCostDisplay.classList.add('hidden');
+                    } else {
+                        insuranceTypeDisplay.textContent = selectedInsurance.name;
+                        const days = parseInt(rentalDaysSelect.value);
+                        const totalInsuranceCost = selectedInsurance.cost * days;
+                        insuranceCostAmount.textContent = `$${totalInsuranceCost.toFixed(2)}`;
+                        insuranceCostDisplay.classList.remove('hidden');
+                    }
+                    
+                    updateTotalCost();
+                });
+            });
+
             // Update total cost when rental days change
             const rentalDaysSelect = document.getElementById('rental-days');
             rentalDaysSelect.addEventListener('change', updateTotalCost);
 
             function updateTotalCost() {
                 const days = parseInt(rentalDaysSelect.value);
-                const totalCost = rentRate * days;
+                const rentalCost = rentRate * days;
+                const insuranceCost = selectedInsurance.cost * days;
+                const totalCost = rentalCost + insuranceCost;
+                
                 document.getElementById('total-cost').textContent = `$${totalCost.toFixed(2)}`;
+                
+                // Update insurance cost display if insurance is selected
+                if (selectedInsurance.type !== 'none') {
+                    insuranceCostAmount.textContent = `$${insuranceCost.toFixed(2)}`;
+                }
             }
 
             // Rent Now button logic
@@ -172,6 +296,16 @@
                 e.preventDefault();
                 const days = rentalDaysSelect.value;
                 const isLoggedIn = localStorage.getItem('userToken') !== null; 
+                
+                // Store insurance selection in localStorage
+                localStorage.setItem('selectedInsurance', JSON.stringify({
+                    type: selectedInsurance.type,
+                    name: selectedInsurance.name,
+                    cost: selectedInsurance.cost,
+                    days: days,
+                    totalCost: selectedInsurance.cost * parseInt(days)
+                }));
+                
                 if (isLoggedIn) {
                     window.location.href = `/payment.html?listingId=${listingId}&days=${days}&type=rent`;
                 } else {

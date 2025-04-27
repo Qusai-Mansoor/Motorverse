@@ -34,6 +34,19 @@ public class Rental {
         RENTED, RETURNED
     }
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "insurance")
+    private Insurance insurance = Insurance.NONE;
+
+    public enum Insurance {
+        NONE, BASIC, PREMIUM, COMPREHENSIVE
+    }
+
+    @Column(name="insurance_amount")
+    private double insurance_amount;
+
+    
+
     // Constructors
     public Rental() {}
 
@@ -58,4 +71,9 @@ public class Rental {
     public void setReturnedDate(LocalDateTime returnedDate) { this.returnedDate = returnedDate; }
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
+    public Insurance getInsurance() { return insurance; }
+    public void setInsurance(Insurance insurance) { this.insurance = insurance; }
+    public double getInsurance_amount() { return insurance_amount; }
+    public void setInsurance_amount(double insurance_amount) { this.insurance_amount = insurance_amount; }
+
 }
