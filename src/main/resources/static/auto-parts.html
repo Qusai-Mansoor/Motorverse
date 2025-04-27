@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Parts - Motorverse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .quantityBtn {
+            transition: all 0.2s ease;
+        }
+        .quantityBtn:hover {
+            background-color: #2563eb;
+            color: white;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cart-item {
+            transition: all 0.2s ease;
+        }
+        .cart-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .cart-dropdown {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .cart-dropdown::-webkit-scrollbar {
+            width: 8px;
+        }
+        .cart-dropdown::-webkit-scrollbar-track {
+            background: #374151;
+            border-radius: 4px;
+        }
+        .cart-dropdown::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        .cart-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400">
+                <a href="index.html">Motorverse</a>
+            </h1>
+            <div class="flex items-center space-x-6">
+                <div id="nav-links" class="hidden md:flex space-x-6">
+                    <a href="index.html" class="hover:text-blue-400 transition-colors duration-200">Home</a>
+                    <a href="buy-car.html" class="hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+                    <a href="rent-car.html" class="hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+                    <a href="auto-parts.html" class="text-blue-400 transition-colors duration-200">Auto Parts</a>
+                    <a href="return-vehicle.html" id="return-vehicle-link" class="hover:text-blue-400 transition-colors duration-200 hidden">Return Vehicle</a>
+                    <a href="rental-history.html" class="hover:text-blue-400 transition-colors duration-200" id="rental-history-link">Rental History</a>
+                    <a href="support.html" class="hover:text-blue-400 transition-colors duration-200">Support</a>
+                    <a href="register.html" id="register-link" class="hover:text-blue-400 transition-colors duration-200">Register</a>
+                    <a href="login.html" id="login-link" class="hover:text-blue-400 transition-colors duration-200">Login</a>
+                    <a href="admin-dashboard.html" id="admin-dashboard-link" class="hover:text-blue-400 transition-colors duration-200 hidden">Admin Dashboard</a>
+                </div>
+                <!-- Shopping Cart Icon -->
+                <div id="cart-icon-container" class="relative cursor-pointer mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white hover:text-blue-400 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span id="cart-badge" class="cart-badge hidden">0</span>
+                    
+                    <!-- Cart Dropdown -->
+                    <div id="cart-dropdown" class="hidden absolute right-0 mt-4 w-80 bg-gray-800 rounded-lg shadow-xl p-4 z-20 cart-dropdown">
+                        <h3 class="text-lg font-semibold mb-3 border-b border-gray-700 pb-2">Shopping Cart</h3>
+                        <div id="cart-items" class="space-y-3 mb-4">
+                            <!-- Cart items will be added here dynamically -->
+                        </div>
+                        <div id="cart-empty" class="py-8 text-center">
+                            <p class="text-gray-400">Your cart is empty</p>
+                        </div>
+                        <div id="cart-summary" class="border-t border-gray-700 pt-3 hidden">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-300">Total Items:</span>
+                                <span id="cart-total-items" class="font-medium">0</span>
+                            </div>
+                            <div class="flex justify-between mb-4">
+                                <span class="text-gray-300">Total Amount:</span>
+                                <span id="cart-total-amount" class="font-medium text-green-400">$0.00</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button id="clear-cart" class="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200 text-sm">
+                                    Clear Cart
+                                </button>
+                                <button id="checkout" class="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors duration-200 text-sm">
+                                    Checkout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="user-detail" class="relative">
+                    <img id="avatar" src="/images/avatar.png" alt="User Avatar" class="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity duration-200">
+                    <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-lg p-4 z-20">
+                        <div class="text-center">
+                            <img src="/images/avatar.png" alt="User Avatar" class="w-16 h-16 rounded-full mx-auto mb-2">
+                            <p class="text-lg font-semibold" id="dropdown-name"></p>
+                            <p class="text-gray-300" id="dropdown-email"></p>
+                            <p class="text-gray-300" id="dropdown-phone"></p>
+                            <button id="logout-btn" class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition-all duration-200 hidden">Logout</button>
+                            <button id="login-btn" class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-all duration-200">Login</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="menu-toggle" class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg">
+            <a href="index.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Home</a>
+            <a href="buy-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+            <a href="rent-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+            <a href="auto-parts.html" class="block py-2 text-blue-400 transition-colors duration-200">Auto Parts</a>
+            <a href="return-vehicle.html" id="mobile-return-vehicle-link" class="block py-2 hover:text-blue-400 transition-colors duration-200 hidden">Return Vehicle</a>
+            <a href="rental-history.html" class="block py-2 hover:text-blue-400 transition-colors duration-200" id="mobile-rental-history-link">Rental History</a>
+            <a href="support.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Support</a>
+            <a href="register.html" id="mobile-register-link" class="block py-2 hover:text-blue-400 transition-colors duration-200">Register</a>
+            <a href="login.html" id="mobile-login-link" class="block py-2 hover:text-blue-400 transition-colors duration-200">Login</a>
+            <a href="admin-dashboard.html" id="mobile-admin-dashboard-link" class="block py-2 hover:text-blue-400 transition-colors duration-200 hidden">Admin Dashboard</a>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-gray-800 to-gray-900 py-16">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold mb-4 text-center">Auto Parts Shop</h1>
+            <p class="text-xl text-gray-300 text-center max-w-3xl mx-auto">
+                Browse our extensive collection of high-quality auto parts for all makes and models.
+                From engine components to accessories, we've got everything you need for your vehicle.
+            </p>
+        </div>
+    </header>
+
+    <!-- Filter and Search Section -->
+    <section class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="w-full md:w-1/3">
+                <input type="text" id="search-input" placeholder="Search auto parts..." 
+                    class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="w-full md:w-auto flex items-center gap-4">
+                <label class="text-gray-300">Sort by:</label>
+                <select id="sort-select" 
+                    class="px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="name">Name (A-Z)</option>
+                    <option value="price-low">Price (Low to High)</option>
+                    <option value="price-high">Price (High to Low)</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auto Parts Grid -->
+    <section class="container mx-auto px-4 py-8">
+        <div id="loading" class="flex justify-center items-center py-20">
+            <div class="loading-spinner"></div>
+            <p class="ml-4 text-gray-300">Loading auto parts...</p>
+        </div>
+        
+        <div id="auto-parts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 opacity-0">
+            <!-- Auto parts will be loaded here via JavaScript -->
+        </div>
+        
+        <div id="no-results" class="text-center py-16 hidden">
+            <h3 class="text-2xl font-semibold text-gray-300">No auto parts found</h3>
+            <p class="text-gray-400 mt-2">Try adjusting your search criteria</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 p-4 text-center shadow-inner mt-auto">
+        <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <!-- Part Detail Modal -->
+    <div id="part-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-lg max-w-2xl w-full mx-4 overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 id="modal-title" class="text-2xl font-bold"></h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="mb-4">
+                    <h4 class="text-gray-300 mb-2">Price:</h4>
+                    <p id="modal-price" class="text-xl font-semibold text-green-400"></p>
+                </div>
+                
+                <div class="mb-4">
+                    <h4 class="text-gray-300 mb-2">Description:</h4>
+                    <p id="modal-description" class="text-gray-300"></p>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="text-gray-300 mb-2">Available Quantity:</h4>
+                    <p id="modal-quantity" class="text-gray-300"></p>
+                </div>
+                
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex items-center">
+                        <button id="decrease-quantity" class="px-3 py-1 border border-gray-600 rounded-l-lg quantityBtn">-</button>
+                        <input type="number" id="purchase-quantity" value="1" min="1" class="w-16 px-3 py-1 text-center bg-gray-700 border-t border-b border-gray-600">
+                        <button id="increase-quantity" class="px-3 py-1 border border-gray-600 rounded-r-lg quantityBtn">+</button>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row gap-2 flex-grow md:justify-end">
+                        <button id="modal-add-to-cart" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors duration-200">
+                            Add to Cart
+                        </button>
+                        <button id="modal-buy-now" class="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg transition-colors duration-200">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Navbar user management
+            const user = JSON.parse(localStorage.getItem("loggedInUser"));
+            const userDetail = document.getElementById("user-detail");
+            const avatar = document.getElementById("avatar");
+            const dropdown = document.getElementById("user-dropdown");
+            const dropdownName = document.getElementById("dropdown-name");
+            const dropdownEmail = document.getElementById("dropdown-email");
+            const dropdownPhone = document.getElementById("dropdown-phone");
+            const logoutBtn = document.getElementById("logout-btn");
+            const loginBtn = document.getElementById("login-btn");
+            const registerLink = document.getElementById("register-link");
+            const loginLink = document.getElementById("login-link");
+            const mobileRegisterLink = document.getElementById("mobile-register-link");
+            const mobileLoginLink = document.getElementById("mobile-login-link");
+            const returnVehicleLink = document.getElementById("return-vehicle-link");
+            const mobileReturnVehicleLink = document.getElementById("mobile-return-vehicle-link");
+            const adminDashboardLink = document.getElementById("admin-dashboard-link");
+            const mobileAdminDashboardLink = document.getElementById("mobile-admin-dashboard-link");
+            const rentalHistoryLink = document.getElementById('rental-history-link');
+            const mobileRentalHistoryLink = document.getElementById('mobile-rental-history-link');
+
+            // Show avatar image (always visible)
+            avatar.style.display = "block";
+
+            if (user && user.firstName) {
+                // Logged in state
+                dropdownName.textContent = user.firstName;
+                dropdownEmail.textContent = user.email;
+                dropdownPhone.textContent = user.phoneNumber || "Not provided";
+                logoutBtn.classList.remove("hidden");
+                loginBtn.classList.add("hidden");
+                registerLink.classList.add("hidden");
+                loginLink.classList.add("hidden");
+                mobileRegisterLink.classList.add("hidden");
+                mobileLoginLink.classList.add("hidden");
+                returnVehicleLink.classList.remove("hidden");
+                mobileReturnVehicleLink.classList.remove("hidden");
+                rentalHistoryLink.classList.remove('hidden');
+                mobileRentalHistoryLink.classList.remove('hidden');
+                if (user.role === "ADMIN") {
+                    adminDashboardLink.classList.remove("hidden");
+                    mobileAdminDashboardLink.classList.remove("hidden");
+                }
+            } else {
+                // Not logged in state
+                logoutBtn.classList.add("hidden");
+                loginBtn.classList.remove("hidden");
+                registerLink.classList.remove("hidden");
+                loginLink.classList.remove("hidden");
+                mobileRegisterLink.classList.remove("hidden");
+                mobileLoginLink.classList.remove("hidden");
+                returnVehicleLink.classList.add("hidden");
+                mobileReturnVehicleLink.classList.add("hidden");
+                rentalHistoryLink.classList.add('hidden');
+                mobileRentalHistoryLink.classList.add('hidden');
+                adminDashboardLink.classList.add("hidden");
+                mobileAdminDashboardLink.classList.add("hidden");
+            }
+
+            avatar.addEventListener("click", () => {
+                dropdown.classList.toggle("hidden");
+            });
+
+            loginBtn.addEventListener("click", () => {
+                window.location.href = "/login.html";
+            });
+
+            logoutBtn.addEventListener("click", () => {
+                localStorage.removeItem("loggedInUser");
+                localStorage.removeItem("userToken");
+                localStorage.removeItem("userId");
+                alert("Logged out successfully");
+                window.location.href = "/index.html";
+            });
+
+            // Close dropdown if clicking outside
+            document.addEventListener("click", (e) => {
+                if (!userDetail.contains(e.target)) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
+            // Mobile menu toggle
+            const menuToggle = document.getElementById("menu-toggle");
+            const mobileMenu = document.getElementById("mobile-menu");
+
+            menuToggle.addEventListener("click", () => {
+                mobileMenu.classList.toggle("hidden");
+            });
+
+            // Auto Parts Functionality
+            const autoPartsGrid = document.getElementById("auto-parts-grid");
+            const loading = document.getElementById("loading");
+            const noResults = document.getElementById("no-results");
+            const searchInput = document.getElementById("search-input");
+            const sortSelect = document.getElementById("sort-select");
+            
+            // Modal elements
+            const partModal = document.getElementById("part-modal");
+            const modalTitle = document.getElementById("modal-title");
+            const modalPrice = document.getElementById("modal-price");
+            const modalDescription = document.getElementById("modal-description");
+            const modalQuantity = document.getElementById("modal-quantity");
+            const closeModal = document.getElementById("close-modal");
+            const purchaseQuantity = document.getElementById("purchase-quantity");
+            const decreaseQuantity = document.getElementById("decrease-quantity");
+            const increaseQuantity = document.getElementById("increase-quantity");
+            const modalAddToCart = document.getElementById("modal-add-to-cart");
+            const modalBuyNow = document.getElementById("modal-buy-now");
+
+            let autoParts = [];
+            let currentPartId = null;
+            let maxQuantity = 0;
+
+            // Fetch auto parts from the API
+            async function fetchAutoParts() {
+                try {
+                    const response = await fetch('/api/autoparts');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch auto parts');
+                    }
+                    autoParts = await response.json();
+                    renderAutoParts(autoParts);
+                    loading.style.display = 'none';
+                    autoPartsGrid.classList.remove('opacity-0');
+                } catch (error) {
+                    console.error('Error fetching auto parts:', error);
+                    loading.style.display = 'none';
+                    autoPartsGrid.innerHTML = `
+                        <div class="col-span-full text-center py-16">
+                            <h3 class="text-2xl font-semibold text-red-400">Error loading auto parts</h3>
+                            <p class="text-gray-400 mt-2">Please try again later</p>
+                        </div>
+                    `;
+                    autoPartsGrid.classList.remove('opacity-0');
+                }
+            }
+
+            // Render auto parts grid
+            function renderAutoParts(parts) {
+                if (parts.length === 0) {
+                    autoPartsGrid.innerHTML = '';
+                    noResults.classList.remove('hidden');
+                    return;
+                }
+
+                noResults.classList.add('hidden');
+                autoPartsGrid.innerHTML = parts.map((part, index) => `
+                    <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg card-hover animate-fadeIn" 
+                        style="animation-delay: ${index * 0.05}s">
+                        <div class="px-6 py-4">
+                            <h3 class="text-xl font-semibold mb-2">${part.name}</h3>
+                            <p class="text-gray-300 mb-4 line-clamp-2">${part.description || 'No description available.'}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-green-400 font-medium">$${part.price.toFixed(2)}</span>
+                                <span class="text-gray-400">${part.quantity > 0 ? `${part.quantity} in stock` : 'Out of stock'}</span>
+                            </div>
+                        </div>
+                        <div class="px-6 py-3 bg-gray-700 flex justify-between">
+                            <button class="view-details-btn px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors duration-200" 
+                                data-id="${part.id}" ${part.quantity === 0 ? 'disabled' : ''}>
+                                View Details
+                            </button>
+                            <button class="buy-now-btn px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg transition-colors duration-200" 
+                                data-id="${part.id}" ${part.quantity === 0 ? 'disabled' : ''}>
+                                Buy Now
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add event listeners to buttons
+                document.querySelectorAll('.view-details-btn').forEach(button => {
+                    button.addEventListener('click', () => openPartDetails(button.dataset.id));
+                });
+
+                document.querySelectorAll('.buy-now-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        openPartDetails(button.dataset.id, true);
+                    });
+                });
+            }
+
+            // Filter and sort functionality
+            function filterAndSortParts() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const sortBy = sortSelect.value;
+
+                let filteredParts = autoParts.filter(part => 
+                    part.name.toLowerCase().includes(searchTerm) || 
+                    (part.description && part.description.toLowerCase().includes(searchTerm))
+                );
+
+                switch (sortBy) {
+                    case 'name':
+                        filteredParts.sort((a, b) => a.name.localeCompare(b.name));
+                        break;
+                    case 'price-low':
+                        filteredParts.sort((a, b) => a.price - b.price);
+                        break;
+                    case 'price-high':
+                        filteredParts.sort((a, b) => b.price - a.price);
+                        break;
+                }
+
+                renderAutoParts(filteredParts);
+            }
+
+            // Open part details modal
+            function openPartDetails(partId, buyNow = false) {
+                const part = autoParts.find(p => p.id == partId);
+                if (!part) return;
+
+                currentPartId = part.id;
+                maxQuantity = part.quantity;
+
+                modalTitle.textContent = part.name;
+                modalPrice.textContent = `$${part.price.toFixed(2)}`;
+                modalDescription.textContent = part.description || 'No description available.';
+                modalQuantity.textContent = `${part.quantity} units`;
+
+                purchaseQuantity.value = 1;
+                purchaseQuantity.max = part.quantity;
+                updatePurchaseQuantity();
+
+                partModal.classList.remove('hidden');
+
+                if (buyNow) {
+                    setTimeout(() => {
+                        modalBuyNow.focus();
+                    }, 100);
+                }
+            }
+
+            // Update purchase quantity
+            function updatePurchaseQuantity() {
+                const qty = parseInt(purchaseQuantity.value);
+                
+                if (isNaN(qty) || qty < 1) {
+                    purchaseQuantity.value = 1;
+                } else if (qty > maxQuantity) {
+                    purchaseQuantity.value = maxQuantity;
+                }
+            }
+
+            // Process buy now
+            async function processBuyNow() {
+                if (!user) {
+                    alert('Please log in to purchase auto parts.');
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const part = autoParts.find(p => p.id == currentPartId);
+                if (!part) return;
+
+                const quantity = parseInt(purchaseQuantity.value);
+                if (isNaN(quantity) || quantity < 1 || quantity > part.quantity) {
+                    alert('Please enter a valid quantity.');
+                    return;
+                }
+
+                // Store purchase info in localStorage for the payment page
+                const purchaseInfo = {
+                    type: 'AUTOPART',
+                    autoPartId: part.id,
+                    name: part.name,
+                    price: part.price,
+                    quantity: quantity,
+                    totalAmount: part.price * quantity,
+                    userId: user.id
+                };
+
+                localStorage.setItem('pendingPurchase', JSON.stringify(purchaseInfo));
+                window.location.href = '/payment.html';
+            }
+
+            // Shopping Cart Functionality
+            const cartIconContainer = document.getElementById("cart-icon-container");
+            const cartBadge = document.getElementById("cart-badge");
+            const cartDropdown = document.getElementById("cart-dropdown");
+            const cartItems = document.getElementById("cart-items");
+            const cartEmpty = document.getElementById("cart-empty");
+            const cartSummary = document.getElementById("cart-summary");
+            const cartTotalItems = document.getElementById("cart-total-items");
+            const cartTotalAmount = document.getElementById("cart-total-amount");
+            const clearCartBtn = document.getElementById("clear-cart");
+            const checkoutBtn = document.getElementById("checkout");
+            
+            // Initialize cart from localStorage
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            
+            // Update cart badge count and visibility
+            function updateCartBadge() {
+                let totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+                
+                if (totalItems > 0) {
+                    cartBadge.textContent = totalItems > 99 ? "99+" : totalItems;
+                    cartBadge.classList.remove("hidden");
+                } else {
+                    cartBadge.classList.add("hidden");
+                }
+            }
+            
+            // Calculate cart total
+            function calculateCartTotal() {
+                let totalItems = 0;
+                let totalAmount = 0;
+                
+                cart.forEach(item => {
+                    totalItems += item.quantity;
+                    totalAmount += item.price * item.quantity;
+                });
+                
+                cartTotalItems.textContent = totalItems;
+                cartTotalAmount.textContent = `$${totalAmount.toFixed(2)}`;
+                
+                return { totalItems, totalAmount };
+            }
+            
+            // Render cart items
+            function renderCart() {
+                if (cart.length === 0) {
+                    cartEmpty.classList.remove("hidden");
+                    cartSummary.classList.add("hidden");
+                    cartItems.innerHTML = "";
+                    return;
+                }
+                
+                cartEmpty.classList.add("hidden");
+                cartSummary.classList.remove("hidden");
+                
+                cartItems.innerHTML = cart.map((item, index) => `
+                    <div class="cart-item flex justify-between items-center p-2 rounded">
+                        <div class="flex-1">
+                            <h4 class="text-sm font-medium">${item.name}</h4>
+                            <div class="flex justify-between text-xs text-gray-400">
+                                <span>$${item.price.toFixed(2)} × ${item.quantity}</span>
+                                <span class="text-green-400">$${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center ml-2">
+                            <button class="cart-decrease px-2 text-gray-400 hover:text-white" data-index="${index}">-</button>
+                            <span class="mx-1 text-sm">${item.quantity}</span>
+                            <button class="cart-increase px-2 text-gray-400 hover:text-white" data-index="${index}">+</button>
+                            <button class="cart-remove ml-2 text-red-400 hover:text-red-300" data-index="${index}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join("");
+                
+                calculateCartTotal();
+                
+                // Add event listeners to cart item buttons
+                document.querySelectorAll(".cart-decrease").forEach(button => {
+                    button.addEventListener("click", (e) => {
+                        const index = parseInt(e.currentTarget.dataset.index);
+                        decreaseCartItem(index);
+                    });
+                });
+                
+                document.querySelectorAll(".cart-increase").forEach(button => {
+                    button.addEventListener("click", (e) => {
+                        const index = parseInt(e.currentTarget.dataset.index);
+                        increaseCartItem(index);
+                    });
+                });
+                
+                document.querySelectorAll(".cart-remove").forEach(button => {
+                    button.addEventListener("click", (e) => {
+                        const index = parseInt(e.currentTarget.dataset.index);
+                        removeCartItem(index);
+                    });
+                });
+            }
+            
+            // Add item to cart
+            function addToCart(product, quantity) {
+                // Check if item already exists in cart
+                const existingItemIndex = cart.findIndex(item => item.id === product.id);
+                
+                if (existingItemIndex >= 0) {
+                    // Update quantity if item exists
+                    cart[existingItemIndex].quantity += quantity;
+                } else {
+                    // Add new item to cart
+                    cart.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        quantity: quantity
+                    });
+                }
+                
+                // Save cart to localStorage
+                localStorage.setItem("cart", JSON.stringify(cart));
+                
+                // Update UI
+                updateCartBadge();
+                renderCart();
+                
+                return true;
+            }
+            
+            // Decrease item quantity in cart
+            function decreaseCartItem(index) {
+                if (cart[index].quantity > 1) {
+                    cart[index].quantity--;
+                } else {
+                    removeCartItem(index);
+                    return;
+                }
+                
+                localStorage.setItem("cart", JSON.stringify(cart));
+                updateCartBadge();
+                renderCart();
+            }
+            
+            // Increase item quantity in cart
+            function increaseCartItem(index) {
+                // Find the corresponding auto part to check inventory
+                const part = autoParts.find(p => p.id == cart[index].id);
+                if (part && cart[index].quantity < part.quantity) {
+                    cart[index].quantity++;
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                    updateCartBadge();
+                    renderCart();
+                } else {
+                    alert("Sorry, we don't have more items in stock.");
+                }
+            }
+            
+            // Remove item from cart
+            function removeCartItem(index) {
+                cart.splice(index, 1);
+                localStorage.setItem("cart", JSON.stringify(cart));
+                updateCartBadge();
+                renderCart();
+            }
+            
+            // Clear cart
+            function clearCart() {
+                cart = [];
+                localStorage.setItem("cart", JSON.stringify(cart));
+                updateCartBadge();
+                renderCart();
+            }
+            
+            // Initialize cart display
+            updateCartBadge();
+            renderCart();
+            
+            // Cart toggle
+            cartIconContainer.addEventListener("click", (e) => {
+                cartDropdown.classList.toggle("hidden");
+                e.stopPropagation();
+            });
+            
+            // Close cart if clicking outside
+            document.addEventListener("click", (e) => {
+                if (!cartIconContainer.contains(e.target)) {
+                    cartDropdown.classList.add("hidden");
+                }
+            });
+            
+            // Clear cart button
+            clearCartBtn.addEventListener("click", () => {
+                if (confirm("Are you sure you want to clear your cart?")) {
+                    clearCart();
+                }
+            });
+            
+            // Checkout button
+            checkoutBtn.addEventListener("click", () => {
+                if (cart.length === 0) {
+                    alert("Your cart is empty.");
+                    return;
+                }
+                
+                if (!user) {
+                    alert("Please log in to checkout.");
+                    window.location.href = "/login.html";
+                    return;
+                }
+                
+                // Store cart info in localStorage for the payment page
+                const cartInfo = {
+                    type: "CART",
+                    items: cart,
+                    totalItems: parseInt(cartTotalItems.textContent),
+                    totalAmount: parseFloat(cartTotalAmount.textContent.replace("$", "")),
+                    userId: user.id
+                };
+                
+                localStorage.setItem("pendingCartPurchase", JSON.stringify(cartInfo));
+                window.location.href = "/payment.html?source=cart";
+            });
+
+            // Add to cart functionality
+            modalAddToCart.addEventListener("click", () => {
+                const part = autoParts.find(p => p.id == currentPartId);
+                if (!part) return;
+                
+                const quantity = parseInt(purchaseQuantity.value);
+                if (isNaN(quantity) || quantity < 1 || quantity > part.quantity) {
+                    alert("Please enter a valid quantity.");
+                    return;
+                }
+                
+                if (addToCart(part, quantity)) {
+                    partModal.classList.add("hidden");
+                    
+                    // Show cart dropdown as feedback
+                    cartDropdown.classList.remove("hidden");
+                    
+                    // Auto-hide after 3 seconds
+                    setTimeout(() => {
+                        if (!cartIconContainer.matches(":hover") && !cartDropdown.matches(":hover")) {
+                            cartDropdown.classList.add("hidden");
+                        }
+                    }, 3000);
+                }
+            });
+
+            // Close modal when clicking outside
+            partModal.addEventListener('click', (e) => {
+                if (e.target === partModal) {
+                    partModal.classList.add('hidden');
+                }
+            });
+
+            // Initialize
+            fetchAutoParts();
+        });
+    </script>
+</body>
+</html>

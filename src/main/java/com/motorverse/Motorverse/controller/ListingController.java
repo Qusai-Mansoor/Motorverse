@@ -169,6 +169,43 @@ public class ListingController {
 
         return ResponseEntity.ok("Listing deleted successfully");
     }
+    // New endpoint: Update listing status by vehicle ID
+    @PutMapping("/vehicle/{vehicleId}/update-status")
+    public ResponseEntity<?> updateListingStatusByVehicleId(
+            @PathVariable int vehicleId, 
+            @RequestBody StatusRequest statusRequest) {
+        
+        // Find the listing associated with this vehicle
+        List<Listing> listings = listingRepository.findByVehicleId(vehicleId);
+        
+        if (listings.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        // Update all listings associated with this vehicle
+        // (typically should be just one, but handling multiple for safety)
+        for (Listing listing : listings) {
+            listing.setStatus(statusRequest.getStatus().toUpperCase().equals("ACTIVE") ? Listing.ListingStatus.ACTIVE : Listing.ListingStatus.INACTIVE);
+            listingRepository.save(listing);
+            
+            // Also update the vehicle status if needed
+            vehicleRepository.findById(vehicleId).ifPresent(vehicle -> {
+                vehicle.setStatus(Vehicle.Status.AVAILABLE);
+                vehicleRepository.save(vehicle);
+            });
+        }
+        
+        return ResponseEntity.ok().body(listings);
+    }
+    
+    static class StatusRequest {
+        private String status;
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+    }
+   
+
+
 
     // Process a transaction (purchase or rental)
     @PostMapping("/transaction")
@@ -234,6 +271,8 @@ public class ListingController {
                 rental.setStartDate(LocalDateTime.now());
                 rental.setEndDate(endDate);
                 rental.setStatus(Rental.Status.RENTED);
+                rental.setInsurance(request.getInsurance()!= null ? Rental.Insurance.valueOf(request.getInsurance()) : Rental.Insurance.NONE);
+                rental.setInsurance_amount(request.getInsuranceAmount());
                 
                 rentalRepository.save(rental);
                 
@@ -342,6 +381,8 @@ class TransactionRequest {
     private String paymentMethod;
     private double amount;
     private Integer rentalDays; // Optional, for rentals only
+    private String insurance;
+    private double insuranceAmount;
 
     // Getters and Setters
     public int getUserId() { return userId; }
@@ -356,7 +397,12 @@ class TransactionRequest {
     public void setAmount(double amount) { this.amount = amount; }
     public Integer getRentalDays() { return rentalDays; }
     public void setRentalDays(Integer rentalDays) { this.rentalDays = rentalDays; }
-}
+    public String getInsurance() { return insurance; }
+    public void setInsurance(String insurance) { this.insurance = insurance; }
+    public double getInsuranceAmount() { return insuranceAmount; }
+    public void setInsuranceAmount(double insuranceAmount) { this.insuranceAmount = insuranceAmount;}
+
+}   
 
 // Response class for successful transactions
 class TransactionResponse {

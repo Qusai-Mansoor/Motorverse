@@ -40,6 +40,9 @@ public class User {
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE; // New status field
 
+    @Column(name = "picture")
+    private String picture = "default-avatar.jpg";
+
     // Enum for user roles
     public enum Role {
         USER, ADMIN
@@ -96,4 +99,6 @@ public class User {
     public void setRole(Role role) { this.role = role; }
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
+    public String getPicture() { return picture; }
+    public void setPicture(String picture) { this.picture = picture; }
 }

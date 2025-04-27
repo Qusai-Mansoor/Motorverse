@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ListingRepository extends JpaRepository<Listing, Integer> {
     List<Listing> findByListingTypeAndStatus(Listing.ListingType type, Listing.ListingStatus status);
+    List<Listing> findByVehicleId(int vehicleId);
 }

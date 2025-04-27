@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Parts API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        #loading {
+            display: none;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Auto Parts API Test</h1>
+    
+    <div>
+        <button id="test-regular-endpoint">Test Regular Endpoint</button>
+        <button id="test-debug-endpoint">Test Debug Endpoint</button>
+        <button id="add-sample-part">Add Sample Part</button>
+    </div>
+    
+    <div id="loading">Loading...</div>
+    
+    <h2>Response:</h2>
+    <pre id="response"></pre>
+    
+    <script>
+        document.getElementById('test-regular-endpoint').addEventListener('click', async () => {
+            await testEndpoint('/api/autoparts');
+        });
+        
+        document.getElementById('test-debug-endpoint').addEventListener('click', async () => {
+            await testEndpoint('/api/autoparts/debug');
+        });
+        
+        document.getElementById('add-sample-part').addEventListener('click', async () => {
+            const samplePart = {
+                name: "Sample Engine Oil Filter",
+                price: 19.99,
+                quantity: 50,
+                description: "High-quality engine oil filter suitable for most vehicle models. Provides excellent filtration of contaminants."
+            };
+            
+            await addSamplePart(samplePart);
+        });
+        
+        async function testEndpoint(url) {
+            const responseElem = document.getElementById('response');
+            const loadingElem = document.getElementById('loading');
+            
+            loadingElem.style.display = 'block';
+            responseElem.textContent = '';
+            responseElem.className = '';
+            
+            try {
+                const startTime = new Date();
+                const response = await fetch(url);
+                const endTime = new Date();
+                const timeElapsed = endTime - startTime;
+                
+                let responseData;
+                let contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    responseData = await response.json();
+                } else {
+                    responseData = await response.text();
+                }
+                
+                const output = {
+                    url: url,
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries([...response.headers.entries()]),
+                    timeElapsed: `${timeElapsed}ms`,
+                    data: responseData
+                };
+                
+                responseElem.textContent = JSON.stringify(output, null, 2);
+                responseElem.className = response.ok ? 'success' : 'error';
+            } catch (error) {
+                responseElem.textContent = `Error: ${error.message}\n\nStack trace: ${error.stack}`;
+                responseElem.className = 'error';
+            } finally {
+                loadingElem.style.display = 'none';
+            }
+        }
+        
+        async function addSamplePart(part) {
+            const responseElem = document.getElementById('response');
+            const loadingElem = document.getElementById('loading');
+            
+            loadingElem.style.display = 'block';
+            responseElem.textContent = '';
+            responseElem.className = '';
+            
+            try {
+                const response = await fetch('/api/autoparts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(part)
+                });
+                
+                let responseData;
+                let contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    responseData = await response.json();
+                } else {
+                    responseData = await response.text();
+                }
+                
+                const output = {
+                    operation: 'Add Sample Part',
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: responseData
+                };
+                
+                responseElem.textContent = JSON.stringify(output, null, 2);
+                responseElem.className = response.ok ? 'success' : 'error';
+            } catch (error) {
+                responseElem.textContent = `Error: ${error.message}\n\nStack trace: ${error.stack}`;
+                responseElem.className = 'error';
+            } finally {
+                loadingElem.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

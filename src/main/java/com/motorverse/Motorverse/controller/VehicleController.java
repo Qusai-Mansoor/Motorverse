@@ -6,6 +6,7 @@ import com.motorverse.Motorverse.entity.Vehicle;
 import com.motorverse.Motorverse.repository.VehicleRepository;
 import com.motorverse.Motorverse.repository.PurchaseRepository;
 import com.motorverse.Motorverse.repository.RentalRepository;
+import com.motorverse.Motorverse.repository.ListingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,7 +38,11 @@ public class VehicleController {
     private PurchaseRepository purchaseRepository;
     @Autowired
     private RentalRepository rentalRepository;
-
+    
+    // Add ListingRepository
+    @Autowired
+    private ListingRepository listingRepository;
+    
     @GetMapping("/buy")
     public List<Vehicle> getVehiclesForSale() {
         return vehicleRepository.findByStatus(Vehicle.Status.AVAILABLE);
@@ -167,14 +172,26 @@ public class VehicleController {
         // Update vehicle status
         vehicle.setStatus(Vehicle.Status.AVAILABLE);
         vehicleRepository.save(vehicle);
+
+        // Update listing status to ACTIVE
+        try {
+            // Find listings associated with this vehicle and set them to ACTIVE
+            listingRepository.findByVehicleId(vehicle.getId()).forEach(listing -> {
+                listing.setStatus(com.motorverse.Motorverse.entity.Listing.ListingStatus.ACTIVE);
+                listingRepository.save(listing);
+            });
+        } catch (Exception e) {
+         
+            System.err.println("Error updating listing status: " + e.getMessage());
+        }
         
-        // Return response with charges
+       
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("additionalCharges", additionalCharges);
         return response;
     }
-
+    
     @PostMapping(value = "/post", consumes = { "multipart/form-data" })
     public Vehicle postVehicle(
             @RequestParam("userId") int userId,
@@ -275,10 +292,13 @@ class RentalRequest {
 
 class ReturnVehicleRequest {
     private int rentalId;
+    private int vehicleId; // Add vehicleId field
     private double damagePercentage;
     
     public int getRentalId() { return rentalId; }
     public void setRentalId(int rentalId) { this.rentalId = rentalId; }
+    public int getVehicleId() { return vehicleId; }
+    public void setVehicleId(int vehicleId) { this.vehicleId = vehicleId; }
     public double getDamagePercentage() { return damagePercentage; }
     public void setDamagePercentage(double damagePercentage) { this.damagePercentage = damagePercentage; }
 }

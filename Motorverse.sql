@@ -124,8 +124,6 @@ ALTER TABLE users ADD COLUMN status VARCHAR(10) NOT NULL DEFAULT 'ACTIVE';
 UPDATE users SET role = 'ADMIN' WHERE email = 'admin@motorverse.com';
 UPDATE users SET role = UPPER(role);
 
-
-
 DELETE FROM users 
 WHERE password = '0101';
 
@@ -152,6 +150,31 @@ VALUES (5, 4, 'Suzuki Swift', 2020, 18000.00, NULL, 'SALE', 'ACTIVE', 'Affordabl
 
 Alter TAble rentals 
 	Add column returned_date DATETIME;
+
+--24 April Ahmed ALi
+create table autoparts(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    quantity INT NOT NULL,
+    description TEXT
+)
+
+insert into table autoparts (name, price, quantity, description) values
+('Brake Pads', 50.00, 100, 'High-quality brake pads for various car models.'),
+('Oil Filter', 15.00, 200, 'Oil filter compatible with most vehicles.'),
+('Air Filter', 20.00, 150, 'Air filter for improved engine performance.'),
+('Spark Plugs', 10.00, 300, 'Durable spark plugs for efficient ignition.'),
+('Battery', 120.00, 50, 'Car battery with a warranty of 2 years.');
+
+-- 27 April Ahmed Ali
+Alter table rentals
+       add column insurance ENUM('NONE', 'BASIC', 'PREIMIUM', 'COMPREHENSIVE') NOT NULL DEFAULT 'NONE',
+       add column insurance_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+
+
+
+
 
 
 -- 24 April Ahmad changes
@@ -185,3 +208,8 @@ select * from listings;
 select * from vehicles;
 select * from rentals;
 
+
+-- 25 April (Qusai) {
+ALTER TABLE users
+ADD COLUMN picture VARCHAR(255) DEFAULT 'default-avatar.jpg';
+-- }

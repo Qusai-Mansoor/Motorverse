@@ -57,6 +57,17 @@
                 <h3 id="vehicle-name" class="text-2xl font-semibold">Loading...</h3>
                 <p id="vehicle-price" class="text-gray-300">Fetching details...</p>
                 <p id="rental-days" class="text-gray-300 hidden"></p>
+                
+                <!-- Insurance Information Display -->
+                <div id="insurance-info" class="mt-4 p-3 bg-gray-700 rounded-lg hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-medium text-green-400">Insurance Package:</h4>
+                            <p id="insurance-name" class="text-gray-300"></p>
+                        </div>
+                        <p id="insurance-cost" class="text-lg font-semibold"></p>
+                    </div>
+                </div>
             </div>
 
             <div class="total-box p-4 rounded-lg mb-6">
@@ -192,13 +203,73 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             let totalCost = 0;
+            let vehicleRentalCost = 0;
+            let insuranceCost = 0;
+            const insurance_map = {'No Insurance': 'NONE',
+             'Basic Coverage': 'BASIC', 
+            'Premium Coverage': 'PREMIUM',
+            'Comprehensive Coverage': 'COMPREHENSIVE'};
 
+            // Check for insurance selection
+            const selectedInsurance = JSON.parse(localStorage.getItem('selectedInsurance') || 'null');
+            
+            // Check for pending cart purchase
+            const pendingCartPurchase = JSON.parse(localStorage.getItem('pendingCartPurchase') || 'null');
+            
+            // Check for single auto part purchase
+            const pendingPurchase = JSON.parse(localStorage.getItem('pendingPurchase') || 'null');
+            
             const urlParams = new URLSearchParams(window.location.search);
             const listingId = urlParams.get('listingId');
             const days = urlParams.get('days');
             const type = urlParams.get('type');
+            const source = urlParams.get('source');
 
-            if (listingId) {
+            // Handle cart purchases
+            if (source === 'cart' && pendingCartPurchase) {
+                // Display cart details
+                document.getElementById('vehicle-name').textContent = "Shopping Cart Items";
+                document.getElementById('vehicle-price').textContent = `Total Items: ${pendingCartPurchase.totalItems}`;
+                
+                // Show quantity information
+                const rentalDaysElem = document.getElementById('rental-days');
+                rentalDaysElem.innerHTML = `
+                    <div class="mt-3 border-t border-gray-700 pt-3">
+                        <h3 class="text-lg font-semibold mb-2">Cart Contents:</h3>
+                        <div class="space-y-2">
+                            ${pendingCartPurchase.items.map(item => `
+                                <div class="flex justify-between">
+                                    <span>${item.name} × ${item.quantity}</span>
+                                    <span class="text-green-400">$${(item.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+
+                        </div>
+                    </div>
+                `;
+                rentalDaysElem.classList.remove('hidden');
+                
+                // Set total cost
+                totalCost = pendingCartPurchase.totalAmount;
+                document.getElementById('total-cost').textContent = `$${totalCost.toFixed(2)}`;
+            }
+            // Handle single auto part purchase
+            else if (pendingPurchase && pendingPurchase.type === 'AUTOPART') {
+                // Display auto part details
+                document.getElementById('vehicle-name').textContent = pendingPurchase.name;
+                document.getElementById('vehicle-price').textContent = `Price per unit: $${pendingPurchase.price.toFixed(2)}`;
+                
+                // Show quantity information
+                const rentalDaysElem = document.getElementById('rental-days');
+                rentalDaysElem.textContent = `Quantity: ${pendingPurchase.quantity} units`;
+                rentalDaysElem.classList.remove('hidden');
+                
+                // Set total cost
+                totalCost = pendingPurchase.totalAmount;
+                document.getElementById('total-cost').textContent = `$${totalCost.toFixed(2)}`;
+            } 
+            // Handle vehicle purchase/rental
+            else if (listingId) {
                 fetch(`/api/listings/${listingId}`)
                     .then(response => {
                         if (!response.ok) throw new Error('Listing not found');
@@ -210,7 +281,23 @@
                             document.getElementById('vehicle-price').textContent = `Rent Rate: $${listing.rentRate.toFixed(2)}/day`;
                             document.getElementById('rental-days').textContent = `Rental Duration: ${days} day${days > 1 ? 's' : ''}`;
                             document.getElementById('rental-days').classList.remove('hidden');
-                            totalCost = listing.rentRate * parseInt(days);
+                            
+                            vehicleRentalCost = listing.rentRate * parseInt(days);
+                            totalCost = vehicleRentalCost;
+                            
+                            // Add insurance details if selected
+                            if (selectedInsurance && selectedInsurance.type !== 'none') {
+                                const insuranceInfo = document.getElementById('insurance-info');
+                                const insuranceName = document.getElementById('insurance-name');
+                                const insuranceCostElement = document.getElementById('insurance-cost');
+                                
+                                insuranceName.textContent = selectedInsurance.name;
+                                insuranceCostElement.textContent = `$${selectedInsurance.totalCost.toFixed(2)}`;
+                                insuranceInfo.classList.remove('hidden');
+                                
+                                insuranceCost = selectedInsurance.totalCost;
+                                totalCost += insuranceCost;
+                            }
                         } else {
                             document.getElementById('vehicle-price').textContent = `Vehicle Price: $${listing.price.toFixed(2)}`;
                             totalCost = listing.price;
@@ -224,10 +311,11 @@
                         document.getElementById('total-cost').textContent = '$0.00';
                     });
             } else {
-                document.getElementById('vehicle-name').textContent = 'No vehicle selected';
+                document.getElementById('vehicle-name').textContent = 'No item selected';
                 document.getElementById('vehicle-price').textContent = 'N/A';
             }
 
+            // Payment method toggle code
             const toggles = {
                 'credit-card': document.getElementById('credit-card-toggle'),
                 'paypal': document.getElementById('paypal-toggle'),
@@ -256,8 +344,7 @@
 
             document.getElementById('payment-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                console.log('Payment form submitted');
-
+                
                 let isValid = false;
                 if (activeMethod === 'credit-card') {
                     const cardNumber = document.getElementById('card-number').value.trim();
@@ -294,75 +381,231 @@
                         throw new Error('User not logged in');
                     }
 
-                    const endpoint = '/api/listings/transaction';
-                    const paymentData = {
-                        userId: userId,
-                        listingId: parseInt(listingId),
-                        transactionType: type.toUpperCase(), // 'RENT' or 'BUY'
-                        paymentMethod: activeMethod.toUpperCase().replace('-', '_'),
-                        amount: totalCost,
-                        ...(type === 'rent' ? { rentalDays: parseInt(days) } : {}) // Add days only for rent
-                    };
+                    // Handle cart purchases
+                    if (source === 'cart' && pendingCartPurchase) {
+                        // Processing cart items one by one
+                        const cartResults = [];
+                        
+                        // Process each item in the cart
+                        for (const item of pendingCartPurchase.items) {
+                            try {
+                                const endpoint = `/api/autoparts/${item.id}/purchase?quantity=${item.quantity}`;
+                                console.log(`Processing cart item: ${item.name}, Quantity: ${item.quantity}`);
+                                
+                                const response = await fetch(endpoint, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    }
+                                });
+                                
+                                if (!response.ok) {
+                                    throw new Error(`Failed to process item: ${item.name}`);
+                                }
+                                
+                                const result = await response.json();
+                                cartResults.push({
+                                    item: item.name,
+                                    success: true,
+                                    result
+                                });
+                            } catch (itemError) {
+                                console.error(`Error processing item ${item.name}:`, itemError);
+                                cartResults.push({
+                                    item: item.name,
+                                    success: false,
+                                    error: itemError.message
+                                });
+                            }
+                        }
+                        
+                        // Check if all items were processed successfully
+                        const allSuccess = cartResults.every(r => r.success);
+                        
+                        if (!allSuccess) {
+                            throw new Error('Some items could not be processed. Please try again.');
+                        }
+                        
+                        console.log('Cart purchase successful:', cartResults);
+                        
+                        // Generate a reference number for the invoice
+                        const invoiceNumber = 'CART-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                        
+                        // Update invoice details for cart
+                        document.getElementById('invoice-number').textContent = invoiceNumber;
+                        document.getElementById('invoice-date').textContent = new Date().toLocaleDateString();
+                        document.getElementById('invoice-vehicle-name').textContent = "Shopping Cart Purchase";
+                        document.getElementById('invoice-payment-method').textContent = activeMethod.replace('-', ' ').toUpperCase();
+                        document.getElementById('invoice-total').textContent = `$${pendingCartPurchase.totalAmount.toFixed(2)}`;
 
-                    console.log('Sending payment data to', endpoint, ':', paymentData);
+                        // Add cart details to invoice
+                        const rentalDetails = document.getElementById('invoice-rental-details');
+                        rentalDetails.classList.remove('hidden');
+                        rentalDetails.innerHTML = `
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Total Items:</span>
+                                <span>${pendingCartPurchase.totalItems}</span>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gray-700">
+                                <h4 class="text-gray-400 mb-2">Items Purchased:</h4>
+                                <div class="space-y-1">
+                                    ${pendingCartPurchase.items.map(item => `
+                                        <div class="flex justify-between text-sm">
+                                            <span>${item.name} × ${item.quantity}</span>
+                                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
 
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(paymentData)
-                    });
+                        // Clear the cart after successful purchase
+                        localStorage.removeItem('pendingCartPurchase');
+                        localStorage.setItem('cart', '[]');
+                    } 
+                    // Handle single auto part purchase
+                    else if (pendingPurchase && pendingPurchase.type === 'AUTOPART') {
+                        // Endpoint for auto part payments - use PUT method to match controller
+                        const endpoint = `/api/autoparts/${pendingPurchase.autoPartId}/purchase?quantity=${pendingPurchase.quantity}`;
+                        console.log('Sending auto part payment data to', endpoint);
 
-                    console.log('Response status:', response.status);
+                        const response = await fetch(endpoint, {
+                            method: 'PUT', 
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
 
-                    if (!response.ok) {
-                        const errorData = await response.text();
-                        throw new Error(`Transaction failed: ${errorData}`);
+                        console.log('Response status:', response.status);
+
+                        if (!response.ok) {
+                            const errorData = await response.text();
+                            throw new Error(`Transaction failed: ${errorData}`);
+                        }
+
+                        const result = await response.json();
+                        console.log('Auto part payment successful:', result);
+                        
+                        // Generate a reference number for the invoice
+                        const invoiceNumber = 'AP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                        
+                        // Update invoice details for auto parts
+                        document.getElementById('invoice-number').textContent = invoiceNumber;
+                        document.getElementById('invoice-date').textContent = new Date().toLocaleDateString();
+                        document.getElementById('invoice-vehicle-name').textContent = pendingPurchase.name;
+                        document.getElementById('invoice-payment-method').textContent = activeMethod.replace('-', ' ').toUpperCase();
+                        document.getElementById('invoice-total').textContent = `$${pendingPurchase.totalAmount.toFixed(2)}`;
+
+                        // Add quantity information to invoice
+                        const rentalDetails = document.getElementById('invoice-rental-details');
+                        rentalDetails.classList.remove('hidden');
+                        document.getElementById('invoice-rental-days').textContent = `${pendingPurchase.quantity} units`;
+                        document.getElementById('invoice-daily-rate').textContent = `$${pendingPurchase.price.toFixed(2)} per unit`;
+
+                        // Clear the pending purchase
+                        localStorage.removeItem('pendingPurchase');
+                    } 
+                    // Handle vehicle purchases/rentals
+                    else {
+                        const endpoint = '/api/listings/transaction';
+                        const paymentData = {
+                            userId: userId,
+                            listingId: parseInt(listingId),
+                            transactionType: type.toUpperCase(), // 'RENT' or 'BUY'
+                            paymentMethod: activeMethod.toUpperCase().replace('-', '_'),
+                            amount: totalCost,
+                            ...(type === 'rent' ? { rentalDays: parseInt(days) } : {}), // Add days only for rent
+                            
+                            // Add insurance data if selected
+                            ...(selectedInsurance && selectedInsurance.type !== 'none' ? { 
+                                insurance: insurance_map[selectedInsurance.name] || 'NONE',
+                                insuranceAmount: selectedInsurance.totalCost 
+                            } : {})
+                        };
+
+                        console.log('Sending payment data to', endpoint, ':', paymentData);
+
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(paymentData)
+                        });
+
+                        console.log('Response status:', response.status);
+
+                        if (!response.ok) {
+                            const errorData = await response.text();
+                            throw new Error(`Transaction failed: ${errorData}`);
+                        }
+
+                        const result = await response.json();
+                        console.log('Transaction successful:', result);
+                        
+                        // Generate random invoice number
+                        const invoiceNumber = 'INV-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                        
+                        // Update invoice details
+                        document.getElementById('invoice-number').textContent = invoiceNumber;
+                        document.getElementById('invoice-date').textContent = new Date().toLocaleDateString();
+                        document.getElementById('invoice-vehicle-name').textContent = document.getElementById('vehicle-name').textContent;
+                        document.getElementById('invoice-payment-method').textContent = activeMethod.replace('-', ' ').toUpperCase();
+                        document.getElementById('invoice-total').textContent = `$${totalCost.toFixed(2)}`;
+
+                        if (type === 'rent') {
+                            const rentalDetails = document.getElementById('invoice-rental-details');
+                            rentalDetails.classList.remove('hidden');
+                            
+                            // Basic rental info
+                            document.getElementById('invoice-rental-days').textContent = `${days} day${days > 1 ? 's' : ''}`;
+                            document.getElementById('invoice-daily-rate').textContent = `$${(vehicleRentalCost / days).toFixed(2)}`;
+                            
+                            // Add insurance info to invoice if selected
+                            if (selectedInsurance && selectedInsurance.type !== 'none') {
+                                // Create insurance details in the invoice
+                                const insuranceInfo = document.createElement('div');
+                                insuranceInfo.className = 'flex justify-between mt-2 pt-2 border-t border-gray-700';
+                                insuranceInfo.innerHTML = `
+                                    <span class="text-gray-400">Insurance (${selectedInsurance.name}):</span>
+                                    <span>$${insuranceCost.toFixed(2)}</span>
+                                `;
+                                rentalDetails.appendChild(insuranceInfo);
+                            }
+                        }
+                        
+                        // Clear the insurance selection after successful payment
+                        localStorage.removeItem('selectedInsurance');
                     }
 
-                    const result = await response.json();
-                    console.log('Transaction successful:', result);
-                    
-                    // Show invoice instead of alert
+                    // Show invoice modal
                     const invoiceModal = document.getElementById('invoice-modal');
-                    const closeInvoice = document.getElementById('close-invoice');
-                    const closeInvoiceBtn = document.getElementById('close-invoice-btn');
-                    
-                    // Generate random invoice number
-                    const invoiceNumber = 'INV-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                    
-                    // Update invoice details
-                    document.getElementById('invoice-number').textContent = invoiceNumber;
-                    document.getElementById('invoice-date').textContent = new Date().toLocaleDateString();
-                    document.getElementById('invoice-vehicle-name').textContent = document.getElementById('vehicle-name').textContent;
-                    document.getElementById('invoice-payment-method').textContent = activeMethod.replace('-', ' ').toUpperCase();
-                    document.getElementById('invoice-total').textContent = `$${totalCost.toFixed(2)}`;
-
-                    if (type === 'rent') {
-                        document.getElementById('invoice-rental-details').classList.remove('hidden');
-                        document.getElementById('invoice-rental-days').textContent = `${days} day${days > 1 ? 's' : ''}`;
-                        document.getElementById('invoice-daily-rate').textContent = `$${(totalCost / days).toFixed(2)}`;
-                    }
-
-                    // Show modal
                     invoiceModal.classList.remove('hidden');
 
                     // Close modal handlers
                     const closeModal = () => {
                         invoiceModal.classList.add('hidden');
-                        window.location.href = type === 'rent' ? '/rent-car.html' : '/buy-car.html';
+                        // Redirect based on purchase type
+                        if (source === 'cart') {
+                            window.location.href = '/auto-parts.html';
+                        } else if (pendingPurchase && pendingPurchase.type === 'AUTOPART') {
+                            window.location.href = '/auto-parts.html';
+                        } else {
+                            window.location.href = type === 'rent' ? '/rent-car.html' : '/buy-car.html';
+                        }
                     };
 
+                    const closeInvoice = document.getElementById('close-invoice');
+                    const closeInvoiceBtn = document.getElementById('close-invoice-btn');
+                    
                     closeInvoice.addEventListener('click', closeModal);
                     closeInvoiceBtn.addEventListener('click', closeModal);
-                    invoiceModal.addEventListener('click', (e) => {
-                        if (e.target === invoiceModal) closeModal();
+                    document.getElementById('invoice-modal').addEventListener('click', (e) => {
+                        if (e.target === document.getElementById('invoice-modal')) closeModal();
                     });
 
                     // Download PDF handler
                     document.getElementById('download-invoice').addEventListener('click', () => {
-                     
                         alert('PDF download feature coming soon!');
                     });
 
