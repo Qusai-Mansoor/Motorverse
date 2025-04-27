@@ -154,6 +154,31 @@ Alter TAble rentals
 	Add column returned_date DATETIME;
 
 
+-- 24 April Ahmad changes
+CREATE TABLE admin_action_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    admin_id INT NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id INT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (admin_id) REFERENCES users(id)
+);
+
+INSERT INTO listings (user_id, vehicle_id, name, year, price, rent_rate, listing_type, status, description, picture, location, mileage, fuel_type, transmission, available_from, available_until) VALUES
+(1, 1, 'Toyota Camry', 2020, NULL, 50.00, 'RENT', 'ACTIVE', 'Spacious sedan with excellent fuel efficiency', 'Camry_Pic.jpg', 'Islamabad, Pakistan', 30000, 'PETROL', 'AUTOMATIC', '2025-03-23 00:00:00', '2025-12-31 23:59:59'),
+(2, 2, 'Honda Civic', 2019, 20000.00, NULL, 'SALE', 'ACTIVE', 'Reliable compact car with modern features', 'Civic_Pic.jpg', 'Karachi, Pakistan', 45000, 'PETROL', 'AUTOMATIC', NULL, NULL),
+(3, 3, 'Ford Mustang', 2021, NULL, 70.00, 'RENT', 'ACTIVE', 'Powerful sports car for thrill-seekers', 'Mustang_Pic.jpg', 'Lahore, Pakistan', 15000, 'PETROL', 'MANUAL', '2025-04-01 00:00:00', '2025-12-31 23:59:59'),
+(1, 4, 'Suzuki Swift', 2020, 18000.00, NULL, 'SALE', 'ACTIVE', 'Compact hatchback, perfect for city driving', 'Swift_Pic.jpg', 'Rawalpindi, Pakistan', 25000, 'PETROL', 'MANUAL', NULL, NULL);
+
+-- Insert a purchase
+INSERT INTO purchases (user_id, vehicle_id, purchase_date, payment_method, amount, transaction_id, status)
+VALUES (2, 1, '2025-01-01 10:00:00', 'CREDIT_CARD', 20000.00, 'TXN123', 'COMPLETED');
+
+-- Insert a rental
+INSERT INTO rentals (user_id, vehicle_id, start_date, end_date, returned_date, status)
+VALUES (2, 1, '2025-01-01 10:00:00', '2025-01-05 10:00:00', NULL, 'RENTED');
+
 select * from purchases;
 use motorverse;
 select * from listings;

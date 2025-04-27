@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motorverse - Reports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1
+          class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400"
+        >
+          Motorverse Admin
+        </h1>
+        <div class="hidden md:flex space-x-6">
+          <a
+            href="admin-dashboard.html"
+            class="hover:text-blue-400 transition-colors duration-200"
+            >Dashboard</a
+          >
+          <button
+            id="logout-btn"
+            class="hover:text-blue-400 transition-colors duration-200"
+          >
+            Logout
+          </button>
+        </div>
+        <button
+          id="menu-toggle"
+          class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg"
+      >
+        <a
+          href="admin-dashboard.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Dashboard</a
+        >
+        <button
+          id="mobile-logout-btn"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200 w-full text-left"
+        >
+          Logout
+        </button>
+      </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto p-6">
+      <h2 class="text-4xl font-bold text-center mb-8">Reports</h2>
+      <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+        <h3 class="text-2xl font-semibold mb-4">Generate Report</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="report-type" class="block mb-1">Report Type</label>
+            <select
+              id="report-type"
+              class="w-full bg-gray-700 text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="purchase">Purchase Report</option>
+              <option value="rental">Rental Report</option>
+            </select>
+          </div>
+        </div>
+        <button
+          onclick="generateReport()"
+          class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors duration-200"
+        >
+          Generate Report
+        </button>
+      </div>
+
+      <div
+        id="report-section"
+        class="hidden bg-gray-800 p-6 rounded-lg shadow-md"
+      >
+        <h3 class="text-2xl font-semibold mb-4" id="report-title">Report</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="border-b border-gray-700">
+                <th class="py-2 px-4 min-w-[60px]">ID</th>
+                <th class="py-2 px-4 min-w-[80px]">User ID</th>
+                <th class="py-2 px-4 min-w-[80px]">Vehicle ID</th>
+                <th class="py-2 px-4 min-w-[100px]">Date</th>
+                <th class="py-2 px-4 min-w-[100px]" id="end-date-header"></th>
+                <th
+                  class="py-2 px-4 min-w-[120px]"
+                  id="returned-date-header"
+                ></th>
+                <th class="py-2 px-4 min-w-[100px]" id="status-header"></th>
+                <th
+                  class="py-2 px-4 min-w-[120px]"
+                  id="payment-method-header"
+                ></th>
+                <th class="py-2 px-4 min-w-[80px]" id="amount-header"></th>
+                <th
+                  class="py-2 px-4 max-w-[150px] whitespace-normal break-words"
+                  id="transaction-id-header"
+                ></th>
+              </tr>
+            </thead>
+            <tbody id="report-table-body">
+              <!-- Report rows will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-gray-800 p-4 text-center shadow-inner">
+      <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = JSON.parse(localStorage.getItem("loggedInUser"));
+        if (!user || user.role !== "ADMIN") {
+          alert("Access denied. Admins only.");
+          window.location.href = "/login.html";
+          return;
+        }
+
+        const logoutBtn = document.getElementById("logout-btn");
+        const mobileLogoutBtn = document.getElementById("mobile-logout-btn");
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        const logout = () => {
+          localStorage.removeItem("loggedInUser");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userToken");
+          alert("Logged out successfully");
+          window.location.href = "/index.html";
+        };
+
+        logoutBtn.addEventListener("click", logout);
+        mobileLogoutBtn.addEventListener("click", logout);
+        menuToggle.addEventListener("click", () => {
+          mobileMenu.classList.toggle("hidden");
+        });
+      });
+
+      async function generateReport() {
+        const reportType = document.getElementById("report-type").value;
+
+        try {
+          const response = await fetch(`/api/reports/${reportType}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            const errorMessage =
+              data.error || `HTTP error! Status: ${response.status}`;
+            throw new Error(errorMessage);
+          }
+
+          displayReport(data, reportType);
+        } catch (error) {
+          console.error("Error generating report:", error);
+          alert("Failed to generate report: " + error.message);
+        }
+      }
+
+      function displayReport(reportData, reportType) {
+        const reportSection = document.getElementById("report-section");
+        const reportTitle = document.getElementById("report-title");
+        const reportTableBody = document.getElementById("report-table-body");
+        const endDateHeader = document.getElementById("end-date-header");
+        const returnedDateHeader = document.getElementById(
+          "returned-date-header"
+        );
+        const statusHeader = document.getElementById("status-header");
+        const paymentMethodHeader = document.getElementById(
+          "payment-method-header"
+        );
+        const amountHeader = document.getElementById("amount-header");
+        const transactionIdHeader = document.getElementById(
+          "transaction-id-header"
+        );
+
+        // Set report title
+        reportTitle.textContent =
+          reportType === "purchase" ? "Purchase Report" : "Rental Report";
+
+        // Configure table headers based on report type
+        if (reportType === "purchase") {
+          endDateHeader.textContent = "";
+          endDateHeader.style.display = "none";
+          returnedDateHeader.textContent = "";
+          returnedDateHeader.style.display = "none";
+          statusHeader.textContent = "Status";
+          statusHeader.style.display = "table-cell";
+          paymentMethodHeader.textContent = "Payment Method";
+          paymentMethodHeader.style.display = "table-cell";
+          amountHeader.textContent = "Amount";
+          amountHeader.style.display = "table-cell";
+          transactionIdHeader.textContent = "Transaction ID";
+          transactionIdHeader.style.display = "table-cell";
+        } else {
+          endDateHeader.textContent = "End Date";
+          endDateHeader.style.display = "table-cell";
+          returnedDateHeader.textContent = "Returned Date";
+          returnedDateHeader.style.display = "table-cell";
+          statusHeader.textContent = "Status";
+          statusHeader.style.display = "table-cell";
+          paymentMethodHeader.textContent = "";
+          paymentMethodHeader.style.display = "none";
+          amountHeader.textContent = "";
+          amountHeader.style.display = "none";
+          transactionIdHeader.textContent = "";
+          transactionIdHeader.style.display = "none";
+        }
+
+        // Populate table
+        reportTableBody.innerHTML = "";
+        const entries =
+          reportType === "purchase" ? reportData.purchases : reportData.rentals;
+        entries.forEach((entry) => {
+          const row = document.createElement("tr");
+          row.classList.add("border-b", "border-gray-700");
+
+          if (reportType === "purchase") {
+            // For Purchase Report: 8 visible columns
+            row.innerHTML = `
+              <td class="py-2 px-4 min-w-[60px]">${entry.id}</td>
+              <td class="py-2 px-4 min-w-[80px]">${entry.userId}</td>
+              <td class="py-2 px-4 min-w-[80px]">${entry.vehicleId}</td>
+              <td class="py-2 px-4 min-w-[100px]">${new Date(
+                entry.purchaseDate
+              ).toLocaleDateString()}</td>
+              <td class="py-2 px-4 min-w-[100px]">${entry.status || ""}</td>
+              <td class="py-2 px-4 min-w-[120px]">${
+                entry.paymentMethod || ""
+              }</td>
+              <td class="py-2 px-4 min-w-[80px]">${entry.amount}</td>
+              <td class="py-2 px-4 max-w-[150px] whitespace-normal break-words">${
+                entry.transactionId || ""
+              }</td>
+            `;
+          } else {
+            // For Rental Report: 7 visible columns
+            row.innerHTML = `
+              <td class="py-2 px-4 min-w-[60px]">${entry.id}</td>
+              <td class="py-2 px-4 min-w-[80px]">${entry.userId}</td>
+              <td class="py-2 px-4 min-w-[80px]">${entry.vehicleId}</td>
+              <td class="py-2 px-4 min-w-[100px]">${new Date(
+                entry.startDate
+              ).toLocaleDateString()}</td>
+              <td class="py-2 px-4 min-w-[100px]">${
+                entry.endDate
+                  ? new Date(entry.endDate).toLocaleDateString()
+                  : ""
+              }</td>
+              <td class="py-2 px-4 min-w-[120px]">${
+                entry.returnedDate
+                  ? new Date(entry.returnedDate).toLocaleDateString()
+                  : ""
+              }</td>
+              <td class="py-2 px-4 min-w-[100px]">${entry.status || ""}</td>
+            `;
+          }
+
+          reportTableBody.appendChild(row);
+        });
+
+        reportSection.classList.remove("hidden");
+      }
+    </script>
+  </body>
+</html>

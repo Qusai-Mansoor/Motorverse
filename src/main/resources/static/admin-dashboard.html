@@ -5,19 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Motorverse - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      .fade-in {
-        animation: fadeIn 0.5s ease-out;
-      }
-    </style>
   </head>
   <body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
     <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg">
@@ -28,6 +15,11 @@
           Motorverse Admin
         </h1>
         <div class="hidden md:flex space-x-6">
+          <a
+            href="admin-dashboard.html"
+            class="hover:text-blue-400 transition-colors duration-200"
+            >Dashboard</a
+          >
           <button
             id="logout-btn"
             class="hover:text-blue-400 transition-colors duration-200"
@@ -58,6 +50,11 @@
         id="mobile-menu"
         class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg"
       >
+        <a
+          href="admin-dashboard.html"
+          class="block py-2 hover:text-blue-400 transition-colors duration-200"
+          >Dashboard</a
+        >
         <button
           id="mobile-logout-btn"
           class="block py-2 hover:text-blue-400 transition-colors duration-200 w-full text-left"
@@ -68,55 +65,54 @@
     </nav>
 
     <main class="flex-grow container mx-auto p-6">
-      <h2 class="text-4xl font-bold text-center mb-8 fade-in">
-        Admin Dashboard
-      </h2>
-      <section class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in">
-        <div
-          class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-        >
-          <h3 class="text-2xl font-semibold mb-4">User Management</h3>
-          <p class="text-gray-300 mb-4">View, edit, or delete user accounts.</p>
+      <h2 class="text-4xl font-bold text-center mb-8">Admin Dashboard</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold mb-4">User Management</h3>
+          <p class="mb-4">View, edit, or delete user accounts.</p>
           <a
-            href="/admin-users.html"
-            class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-center transition-colors duration-200"
+            href="admin-users.html"
+            class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200"
             >Go to Users</a
           >
         </div>
-        <div
-          class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-        >
-          <h3 class="text-2xl font-semibold mb-4">Manage Listings</h3>
-          <p class="text-gray-300 mb-4">Review and manage vehicle listings.</p>
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold mb-4">Manage Listings</h3>
+          <p class="mb-4">Review and manage vehicle listings.</p>
           <a
-            href="/admin-listings.html"
-            class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-center transition-colors duration-200"
+            href="admin-listings.html"
+            class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200"
             >Go to Listings</a
           >
         </div>
-        <div
-          class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-        >
-          <h3 class="text-2xl font-semibold mb-4">Manage Transactions</h3>
-          <p class="text-gray-300 mb-4">Oversee purchases and rentals.</p>
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold mb-4">Manage Transactions</h3>
+          <p class="mb-4">Oversee purchases and rentals.</p>
           <a
-            href="/admin-transactions.html"
-            class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-center transition-colors duration-200"
+            href="admin-transactions.html"
+            class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200"
             >Go to Transactions</a
           >
         </div>
-        <div
-          class="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-        >
-          <h3 class="text-2xl font-semibold mb-4">Manage Tickets</h3>
-          <p class="text-gray-300 mb-4">Manage and respond to customer support tickets.</p>
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold mb-4">Manage Tickets</h3>
+          <p class="mb-4">Manage and respond to customer support tickets.</p>
           <a
-            href="/admin-support.html"
-            class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-center transition-colors duration-200"
-            >Manage Support</a
+            href="admin-support.html"
+            class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200"
+            >Go to Support</a
           >
         </div>
-      </section>
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold mb-4">Generate Sales Report</h3>
+          <p class="mb-4">Analyze sales and rental performance.</p>
+          <a
+            href="admin-reports.html"
+            class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200"
+            >Generate Report</a
+          >
+        </div>
+      </div>
     </main>
 
     <footer class="bg-gray-800 p-4 text-center shadow-inner">

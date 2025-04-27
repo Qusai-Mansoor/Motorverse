@@ -1,9 +1,11 @@
 package com.motorverse.Motorverse.controller;
 
+import com.motorverse.Motorverse.entity.AdminActionLog;
 import com.motorverse.Motorverse.entity.Listing;
 import com.motorverse.Motorverse.entity.Purchase;
 import com.motorverse.Motorverse.entity.Rental;
 import com.motorverse.Motorverse.entity.Vehicle;
+import com.motorverse.Motorverse.repository.AdminActionLogRepository;
 import com.motorverse.Motorverse.repository.ListingRepository;
 import com.motorverse.Motorverse.repository.PurchaseRepository;
 import com.motorverse.Motorverse.repository.RentalRepository;
@@ -30,6 +32,9 @@ public class ListingController {
     @Autowired
     private PurchaseRepository purchaseRepository;
 
+    @Autowired
+    private AdminActionLogRepository adminActionLogRepository;
+
     // Get all active listings for sale
     @GetMapping("/buy")
     public List<Listing> getListingsForSale() {
@@ -48,6 +53,13 @@ public class ListingController {
         return listingRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Get all listings (for admin)
+    @GetMapping("/all")
+    public ResponseEntity<List<Listing>> getAllListings() {
+        List<Listing> listings = listingRepository.findAll();
+        return ResponseEntity.ok(listings);
     }
 
     // Create a new listing and sync with vehicles table
@@ -84,8 +96,8 @@ public class ListingController {
         Vehicle vehicle = new Vehicle();
         vehicle.setName(request.getName());
         vehicle.setYear(request.getYear());
-        vehicle.setPrice(request.getPrice()!=null ? request.getPrice() : 0.0);
-        vehicle.setRentRate(request.getRentRate()!= null ? request.getRentRate() : 0.0);
+        vehicle.setPrice(request.getPrice() != null ? request.getPrice() : 0.0);
+        vehicle.setRentRate(request.getRentRate() != null ? request.getRentRate() : 0.0);
         vehicle.setStatus(Vehicle.Status.AVAILABLE);
         vehicle.setDescription(request.getDescription());
         vehicle.setPicture(request.getPicture());
@@ -96,6 +108,66 @@ public class ListingController {
         listingRepository.save(savedListing);
 
         return ResponseEntity.ok(savedListing);
+    }
+
+    // Update a listing (admin only) - Removed admin access check
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateListing(@PathVariable int id, @RequestBody Listing updatedListing) {
+        Listing existingListing = listingRepository.findById(id).orElse(null);
+        if (existingListing == null) {
+            return ResponseEntity.badRequest().body("Listing not found");
+        }
+
+        // Update fields
+        existingListing.setName(updatedListing.getName());
+        existingListing.setYear(updatedListing.getYear());
+        existingListing.setPrice(updatedListing.getPrice());
+        existingListing.setRentRate(updatedListing.getRentRate());
+        existingListing.setListingType(updatedListing.getListingType());
+        existingListing.setStatus(updatedListing.getStatus());
+        existingListing.setDescription(updatedListing.getDescription());
+        existingListing.setPicture(updatedListing.getPicture());
+        existingListing.setLocation(updatedListing.getLocation());
+        existingListing.setMileage(updatedListing.getMileage());
+        existingListing.setFuelType(updatedListing.getFuelType());
+        existingListing.setTransmission(updatedListing.getTransmission());
+        existingListing.setAvailableFrom(updatedListing.getAvailableFrom());
+        existingListing.setAvailableUntil(updatedListing.getAvailableUntil());
+        existingListing.setUpdatedAt(LocalDateTime.now());
+
+        listingRepository.save(existingListing);
+
+        // Log admin action
+        AdminActionLog log = new AdminActionLog();
+        log.setAdminId(1); // Simplified; using a default admin ID since token is removed
+        log.setAction("UPDATE_LISTING");
+        log.setEntityId(id);
+        log.setEntityType("LISTING");
+        log.setTimestamp(LocalDateTime.now());
+        adminActionLogRepository.save(log);
+
+        return ResponseEntity.ok("Listing updated successfully");
+    }
+
+    // Delete a listing (admin only) - Removed admin access check
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteListing(@PathVariable int id) {
+        if (!listingRepository.existsById(id)) {
+            return ResponseEntity.badRequest().body("Listing not found");
+        }
+
+        listingRepository.deleteById(id);
+
+        // Log admin action
+        AdminActionLog log = new AdminActionLog();
+        log.setAdminId(1); // Simplified; using a default admin ID since token is removed
+        log.setAction("DELETE_LISTING");
+        log.setEntityId(id);
+        log.setEntityType("LISTING");
+        log.setTimestamp(LocalDateTime.now());
+        adminActionLogRepository.save(log);
+
+        return ResponseEntity.ok("Listing deleted successfully");
     }
 
     // Process a transaction (purchase or rental)
