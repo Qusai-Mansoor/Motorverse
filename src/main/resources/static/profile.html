@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motorverse - Profile Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400">
+                <a href="index.html">Motorverse</a>
+            </h1>
+            <div class="space-x-6 flex items-center">
+                <a href="index.html" class="hover:text-blue-400 transition-colors duration-200">Home</a>
+                <div id="user-detail" class="relative">
+                    <img id="avatar" src="/images/avatar.png" alt="User Avatar" 
+                        class="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity duration-200">
+                    <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg p-2">
+                        <button id="logout-btn" class="w-full text-left px-4 py-2 text-white hover:bg-gray-700 rounded transition-colors duration-200">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto p-6">
+        <div class="max-w-2xl mx-auto">
+            <h1 class="text-4xl font-bold text-center mb-8">Profile Management</h1>
+            
+            <!-- Profile Picture Section -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                <div class="flex flex-col items-center">
+                    <img id="profile-picture" src="/images/avatar.png" alt="Profile Picture" 
+                        class="w-32 h-32 rounded-full mb-4">
+                    <input type="file" id="picture-upload" accept="image/*" class="hidden">
+                    <button onclick="document.getElementById('picture-upload').click()" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">
+                        Change Picture
+                    </button>
+                </div>
+            </div>
+
+            <!-- Profile Information Section -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">Personal Information</h2>
+                    <button id="edit-profile-btn" class="view-mode bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">
+                        Edit Information
+                    </button>
+                    <div id="edit-actions" class="hidden edit-mode space-x-4">
+                        <button id="cancel-edit" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-full transition-colors duration-200">
+                            Cancel
+                        </button>
+                        <button id="save-profile" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- View Mode -->
+                <div id="profile-view" class="view-mode grid grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-400">First Name</h3>
+                        <p id="view-firstName" class="text-lg"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-400">Last Name</h3>
+                        <p id="view-lastName" class="text-lg"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-400">Email</h3>
+                        <p id="view-email" class="text-lg"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-400">Date of Birth</h3>
+                        <p id="view-dateOfBirth" class="text-lg"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-400">Phone Number</h3>
+                        <p id="view-phoneNumber" class="text-lg"></p>
+                    </div>
+                </div>
+
+                <!-- Edit Mode -->
+                <form id="profile-form" class="hidden edit-mode space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">First Name</label>
+                            <input type="text" id="firstName" required
+                                class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Last Name</label>
+                            <input type="text" id="lastName" required
+                                class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Email</label>
+                        <input type="email" id="email" disabled
+                            class="w-full p-2 bg-gray-600 border border-gray-600 rounded text-gray-400">
+                        <p class="text-sm text-gray-400 mt-1">Email cannot be changed</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Date of Birth</label>
+                        <input type="date" id="dateOfBirth" required
+                            class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Phone Number</label>
+                        <input type="tel" id="phoneNumber"
+                            class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Password Change Form -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                <h2 class="text-2xl font-semibold mb-6">Change Password</h2>
+                <form id="password-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Current Password</label>
+                        <input type="password" id="currentPassword" required
+                            class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">New Password</label>
+                        <input type="password" id="newPassword" required
+                            class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" required
+                            class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">
+                        Change Password
+                    </button>
+                </form>
+            </div>
+
+            <!-- Delete Account Section -->
+            <div class="bg-red-900 p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4">Delete Account</h2>
+                <p class="text-gray-300 mb-4">Warning: This action cannot be undone. All your data will be permanently deleted.</p>
+                <button id="delete-account" 
+                    class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition-colors duration-200">
+                    Delete Account
+                </button>
+            </div>
+
+            <!-- Photo Upload Modal -->
+            <div id="photo-upload-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold">Upload Profile Picture</h3>
+                        <button id="close-upload-modal" class="text-gray-400 hover:text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex flex-col items-center">
+                            <img id="preview-image" src="/images/avatar.png" alt="Preview" class="w-32 h-32 rounded-full mb-4 object-cover">
+                            <input type="file" id="picture-upload" accept="image/*" class="hidden">
+                            <button onclick="document.getElementById('picture-upload').click()" 
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-200">
+                                Select Photo
+                            </button>
+                        </div>
+                        <div class="flex justify-end space-x-4 mt-6">
+                            <button id="cancel-upload" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-full">
+                                Cancel
+                            </button>
+                            <button id="save-photo" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-full" disabled>
+                                Save Photo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add these lines at the beginning of the existing script
+            const avatar = document.getElementById('avatar');
+            const userDropdown = document.getElementById('user-dropdown');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            // Toggle dropdown
+            avatar.addEventListener('click', () => {
+                userDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!avatar.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+
+            // Logout functionality
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('loggedInUser');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userToken');
+                window.location.href = '/index.html';
+            });
+
+            // Replace the updateViewMode function with this fixed version
+            function updateViewMode(userData) {
+                try {
+                    document.getElementById('view-firstName').textContent = userData.firstName || 'Not provided';
+                    document.getElementById('view-lastName').textContent = userData.lastName || 'Not provided';
+                    document.getElementById('view-email').textContent = userData.email || 'Not provided';
+                    
+                    // Proper date handling
+                    let dateDisplay = 'Not provided';
+                    if (userData.dateOfBirth) {
+                        const date = new Date(userData.dateOfBirth);
+                        if (!isNaN(date.getTime())) {
+                            dateDisplay = date.toISOString().split('T')[0];
+                        }
+                    }
+                    document.getElementById('view-dateOfBirth').textContent = dateDisplay;
+                    
+                    document.getElementById('view-phoneNumber').textContent = userData.phoneNumber || 'Not provided';
+                    
+                    // Also update form fields
+                    document.getElementById('firstName').value = userData.firstName || '';
+                    document.getElementById('lastName').value = userData.lastName || '';
+                    document.getElementById('email').value = userData.email || '';
+                    document.getElementById('dateOfBirth').value = userData.dateOfBirth ? 
+                        new Date(userData.dateOfBirth).toISOString().split('T')[0] : '';
+                    document.getElementById('phoneNumber').value = userData.phoneNumber || '';
+                } catch (error) {
+                    console.error('Error updating view mode:', error);
+                }
+            }
+
+            // Replace the user data loading section with this
+            const user = JSON.parse(localStorage.getItem('loggedInUser'));
+            const userId = localStorage.getItem('userId');
+
+            if (!user || !userId) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            // Fetch fresh user data from the server
+            fetch(`/api/users/profile/${userId}`)
+                .then(response => response.json())
+                .then(userData => {
+                    // Update the stored user data
+                    localStorage.setItem('loggedInUser', JSON.stringify(userData));
+                    // Initialize view mode with fresh data
+                    updateViewMode(userData);
+                })
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                    // Fallback to stored data if fetch fails
+                    updateViewMode(user);
+                });
+
+            // Profile picture upload
+            document.getElementById('picture-upload').addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    // In a real application, you would upload the file to a server
+                    // For now, we'll just show it locally
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById('profile-picture').src = e.target.result;
+                        document.getElementById('avatar').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Profile update form
+            document.getElementById('profile-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const profileData = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    dateOfBirth: document.getElementById('dateOfBirth').value,
+                    phoneNumber: document.getElementById('phoneNumber').value,
+                    picture: document.getElementById('profile-picture').src
+                };
+
+                try {
+                    const response = await fetch(`/api/users/profile/${userId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(profileData)
+                    });
+
+                    if (!response.ok) throw new Error('Failed to update profile');
+
+                    // Update local storage
+                    const updatedUser = { ...user, ...profileData };
+                    localStorage.setItem('loggedInUser', JSON.stringify(updatedUser));
+                    
+                    alert('Profile updated successfully');
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to update profile');
+                }
+            });
+
+            // Password change form
+            document.getElementById('password-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    alert('New passwords do not match');
+                    return;
+                }
+
+                const passwordData = {
+                    currentPassword: document.getElementById('currentPassword').value,
+                    newPassword: newPassword
+                };
+
+                try {
+                    const response = await fetch(`/api/users/change-password/${userId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(passwordData)
+                    });
+
+                    if (!response.ok) throw new Error('Failed to change password');
+
+                    alert('Password changed successfully');
+                    document.getElementById('password-form').reset();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to change password');
+                }
+            });
+
+            // Delete account
+            document.getElementById('delete-account').addEventListener('click', async () => {
+                const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+                if (!confirmed) return;
+
+                const doubleConfirmed = confirm('Please confirm again that you want to permanently delete your account.');
+                if (!doubleConfirmed) return;
+
+                try {
+                    const response = await fetch(`/api/users/${userId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) throw new Error('Failed to delete account');
+
+                    // Clear local storage and redirect to home
+                    localStorage.removeItem('loggedInUser');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('userToken');
+                    window.location.href = '/index.html';
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to delete account');
+                }
+            });
+
+            const editProfileBtn = document.getElementById('edit-profile-btn');
+            const cancelEditBtn = document.getElementById('cancel-edit');
+            const saveProfileBtn = document.getElementById('save-profile');
+            const profileForm = document.getElementById('profile-form');
+            const profileView = document.getElementById('profile-view');
+            const editActions = document.getElementById('edit-actions');
+
+            function toggleEditMode(isEdit) {
+                document.querySelectorAll('.view-mode').forEach(el => el.classList.toggle('hidden', isEdit));
+                document.querySelectorAll('.edit-mode').forEach(el => el.classList.toggle('hidden', !isEdit));
+            }
+
+            function updateViewMode(userData) {
+                document.getElementById('view-firstName').textContent = userData.firstName || 'Not provided';
+                document.getElementById('view-lastName').textContent = userData.lastName || 'Not provided';
+                document.getElementById('view-email').textContent = userData.email || 'Not provided';
+                document.getElementById('view-dateOfBirth').textContent = userData.dateOfBirth ? 
+                    new Date(userData.dateOfBirth).toLocaleDateString() : 'Not provided';
+                document.getElementById('view-phoneNumber').textContent = userData.phoneNumber || 'Not provided';
+            }
+
+            editProfileBtn.addEventListener('click', () => toggleEditMode(true));
+            cancelEditBtn.addEventListener('click', () => toggleEditMode(false));
+
+            // Initialize view mode
+            updateViewMode(user);
+
+            // Load data into edit form
+            document.getElementById('firstName').value = user.firstName || '';
+            document.getElementById('lastName').value = user.lastName || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('dateOfBirth').value = user.dateOfBirth || '';
+            document.getElementById('phoneNumber').value = user.phoneNumber || '';
+
+            // Update profile form submission
+            document.getElementById('profile-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const profileData = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    dateOfBirth: document.getElementById('dateOfBirth').value,
+                    phoneNumber: document.getElementById('phoneNumber').value,
+                    picture: document.getElementById('profile-picture').src
+                };
+
+                try {
+                    const response = await fetch(`/api/users/profile/${userId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(profileData)
+                    });
+
+                    if (!response.ok) throw new Error('Failed to update profile');
+
+                    // Update local storage and view mode
+                    const updatedUser = { ...user, ...profileData };
+                    localStorage.setItem('loggedInUser', JSON.stringify(updatedUser));
+                    updateViewMode(updatedUser);
+                    toggleEditMode(false);
+                    
+                    alert('Profile updated successfully');
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to update profile');
+                }
+            });
+
+            // Photo upload handling
+            const photoUploadModal = document.getElementById('photo-upload-modal');
+            const closeUploadModal = document.getElementById('close-upload-modal');
+            const cancelUpload = document.getElementById('cancel-upload');
+            const savePhoto = document.getElementById('save-photo');
+            const pictureUpload = document.getElementById('picture-upload');
+            const previewImage = document.getElementById('preview-image');
+            let selectedFile = null;
+
+            // Fix the picture upload button click handler
+            const changePictureBtn = document.querySelector('button[onclick="document.getElementById(\'picture-upload\').click()"]');
+            changePictureBtn.onclick = (e) => {
+                e.preventDefault();
+                photoUploadModal.classList.remove('hidden');
+            };
+
+            // File selection handler with proper modal handling
+            pictureUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please select an image file');
+                        return;
+                    }
+                    selectedFile = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImage.src = e.target.result;
+                        savePhoto.disabled = false;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Save photo handler
+            savePhoto.addEventListener('click', async () => {
+                if (!selectedFile) return;
+
+                const formData = new FormData();
+                formData.append('picture', selectedFile);
+
+                try {
+                    const response = await fetch(`/api/users/profile/${userId}/picture`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error('Failed to upload picture');
+
+                    const data = await response.json();
+                    const pictureUrl = `/images/${data.picture}`;
+                    
+                    // Update all profile pictures on the page
+                    document.getElementById('profile-picture').src = pictureUrl;
+                    document.getElementById('avatar').src = pictureUrl;
+                    previewImage.src = pictureUrl;
+                    
+                    // Update user data in localStorage
+                    const updatedUser = { ...user, picture: data.picture };
+                    localStorage.setItem('loggedInUser', JSON.stringify(updatedUser));
+
+                    photoUploadModal.classList.add('hidden');
+                    alert('Profile picture updated successfully');
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to update profile picture');
+                }
+            });
+
+            // Close modal handlers with proper cleanup
+            [closeUploadModal, cancelUpload].forEach(el => {
+                el.addEventListener('click', () => {
+                    photoUploadModal.classList.add('hidden');
+                    previewImage.src = document.getElementById('profile-picture').src;
+                    pictureUpload.value = '';
+                    selectedFile = null;
+                    savePhoto.disabled = true;
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>

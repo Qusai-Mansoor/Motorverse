@@ -124,8 +124,6 @@ ALTER TABLE users ADD COLUMN status VARCHAR(10) NOT NULL DEFAULT 'ACTIVE';
 UPDATE users SET role = 'ADMIN' WHERE email = 'admin@motorverse.com';
 UPDATE users SET role = UPPER(role);
 
-
-
 DELETE FROM users 
 WHERE password = '0101';
 
@@ -185,3 +183,8 @@ select * from listings;
 select * from vehicles;
 select * from rentals;
 
+
+-- 25 April (Qusai) {
+ALTER TABLE users
+ADD COLUMN picture VARCHAR(255) DEFAULT 'default-avatar.jpg';
+-- }
