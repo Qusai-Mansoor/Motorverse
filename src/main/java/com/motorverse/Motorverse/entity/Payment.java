@@ -41,7 +41,15 @@ public class Payment {
     // Constructors
     public Payment() {
         this.paymentDate = LocalDateTime.now();
+        this.amount = BigDecimal.ZERO; // Default value
+        this.autoPartId = 0; // Default value
+        this.quantity = 0; // Default value
+        this.listingId = 0; // Default value
+        
+       
     }
+
+    
     
     // Getters and setters
     public Integer getId() {

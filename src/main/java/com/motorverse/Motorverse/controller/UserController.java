@@ -41,7 +41,7 @@ public class UserController {
         return ResponseEntity.ok(savedUser);
     }
 
-    // Login
+    // Add this login endpoint to support the tests and frontend
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail());
