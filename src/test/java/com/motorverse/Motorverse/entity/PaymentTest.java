@@ -1,7 +1,6 @@
 package com.motorverse.Motorverse.entity;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.cglib.core.Local;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
