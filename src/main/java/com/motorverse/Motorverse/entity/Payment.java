@@ -45,7 +45,7 @@ public class Payment {
         this.autoPartId = 0; // Default value
         this.quantity = 0; // Default value
         this.listingId = 0; // Default value
-        
+
        
     }
 
