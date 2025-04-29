@@ -131,7 +131,7 @@
 
             document.getElementById('buy-now').addEventListener('click', (e) => {
                 e.preventDefault();
-                const isLoggedIn = localStorage.getItem('userToken') !== null;
+                const isLoggedIn = localStorage.getItem('loggedInUser') !== null;
                 
                 if (isLoggedIn) {
                     window.location.href = `/payment.html?listingId=${listingId}&type=buy`;

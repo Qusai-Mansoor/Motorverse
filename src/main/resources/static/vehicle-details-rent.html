@@ -295,7 +295,7 @@
             document.getElementById('rent-now').addEventListener('click', (e) => {
                 e.preventDefault();
                 const days = rentalDaysSelect.value;
-                const isLoggedIn = localStorage.getItem('userToken') !== null; 
+                const isLoggedIn = localStorage.getItem('loggedInUser') !== null; 
                 
                 // Store insurance selection in localStorage
                 localStorage.setItem('selectedInsurance', JSON.stringify({

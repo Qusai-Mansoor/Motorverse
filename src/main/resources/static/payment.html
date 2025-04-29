@@ -344,7 +344,76 @@
 
             document.getElementById('payment-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
+            
+            function validate_credit_card(cardNumber, expiry, cvv) {
+                // Basic validation for credit card fields
+                const cardNumberPattern = /^\d{4} \d{4} \d{4} \d{4}$/;
+                const expiryPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
+                const cvvPattern = /^\d{3}$/;
+
+                //if expiry is before current date, return false
+                const [month, year] = expiry.split('/').map(Number);
+                const currentDate = new Date();
+                const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed
+                const currentYear = currentDate.getFullYear() % 100; // Get last two digits of the year
+                if (year < currentYear || (year === currentYear && month < currentMonth)) {
+                    alert('Card has expired. Please check the expiry date.');
+                    return false;
+                }
+
+                if(!cardNumberPattern.test(cardNumber)) {
+                    alert('Invalid card number format. Please use "XXXX XXXX XXXX XXXX" format.');
+                    return false;
+                }
+                if(!expiryPattern.test(expiry)) {
+                    alert('Invalid expiry date format. Please use "MM/YY" format.');
+                    return false;
+                }
+                if(!cvvPattern.test(cvv)) {
+                    alert('Invalid CVV format. Please use "XXX" format.');
+                    return false;
+                }
                 
+            
+                return cardNumberPattern.test(cardNumber) && expiryPattern.test(expiry) && cvvPattern.test(cvv);
+            }    
+
+            function validate_debit_card(debitCardNumber, debitExpiry, debitCvv) {
+                // Basic validation for debit card fields
+                const debitCardNumberPattern = /^\d{4} \d{4} \d{4} \d{4}$/;
+                const debitExpiryPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
+                const debitCvvPattern = /^\d{3}$/;
+
+                //if expiry is before current date, return false
+
+                const [month, year] = debitExpiry.split('/').map(Number);
+                const currentDate = new Date();
+                const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed
+                const currentYear = currentDate.getFullYear() % 100; // Get last two digits of the year
+                if (year < currentYear || (year === currentYear && month < currentMonth)) {
+                    alert('Card has expired. Please check the expiry date.');
+                    return false;
+                }
+
+                if(!debitCardNumberPattern.test(debitCardNumber)) {
+                    alert('Invalid debit card number format. Please use "XXXX XXXX XXXX XXXX" format.');
+                    return false;
+                }
+                if(!debitExpiryPattern.test(debitExpiry)) {
+                    alert('Invalid expiry date format. Please use "MM/YY" format.');
+                    return false;
+                }
+                if(!debitCvvPattern.test(debitCvv)) {
+                    alert('Invalid CVV format. Please use "XXX" format.');
+                    return false;
+                }
+
+
+                return debitCardNumberPattern.test(debitCardNumber) && debitExpiryPattern.test(debitExpiry) && debitCvvPattern.test(debitCvv);
+            }
+
+
+
                 let isValid = false;
                 if (activeMethod === 'credit-card') {
                     const cardNumber = document.getElementById('card-number').value.trim();
@@ -356,6 +425,13 @@
                         alert('Please fill all Credit Card fields.');
                         return;
                     }
+                    // Validate credit card details
+                    if (!validate_credit_card(cardNumber, expiry, cvv)) {
+                        alert('Invalid credit card details. Please check and try again.');
+                        return;
+                    }
+
+
                 } else if (activeMethod === 'paypal') {
                     const paypalEmail = document.getElementById('paypal-email').value.trim();
                     isValid = paypalEmail && /\S+@\S+\.\S+/.test(paypalEmail);
@@ -371,6 +447,12 @@
                     isValid = debitCardNumber && debitExpiry && debitCvv && debitCardName;
                     if (!isValid) {
                         alert('Please fill all Debit Card fields.');
+                        return;
+                    }
+
+                    // Validate debit card details
+                    if (!validate_debit_card(debitCardNumber, debitExpiry, debitCvv)) {
+                        alert('Invalid debit card details. Please check and try again.');
                         return;
                     }
                 }

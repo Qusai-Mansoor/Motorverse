@@ -628,6 +628,21 @@
           
           // Create FormData object
           const formData = new FormData();
+
+          //If price is 0, show error message and return
+          if (listingTypeInput.value === "SALE" && priceInput.value == 0) {
+            alert("Price cannot be zero for sale listings.");
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            return;
+          }
+          // If rent rate is 0, show error message and return
+          if (listingTypeInput.value === "RENT" && rentRateInput.value == 0) {
+            alert("Rent rate cannot be zero for rent listings.");
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            return;
+          }
           
           // Add all form fields
           const listingType = listingTypeInput.value;
@@ -698,6 +713,11 @@
             
             // Add type-specific values
             if (listingType === "SALE") {
+              if (document.getElementById("price").value == 0)
+               { 
+                alert("Price cannot be zero for sale listings.");
+                submitButton.textContent = originalText;
+               }
               listingData.price = parseFloat(document.getElementById("price").value);
             } else {
               listingData.rentRate = parseFloat(document.getElementById("rentRate").value);
