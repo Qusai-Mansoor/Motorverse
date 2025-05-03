@@ -173,43 +173,72 @@
       <p class="text-gray-300">© 2025 Motorverse</p>
     </footer>
     <script src="/script.js"></script>
-    <script>
-      document
-        .getElementById("register-form")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
+    <script type="module">
+      import { validateEmail, validatePassword, validateName, validateDateOfBirth, validatePhoneNumber } from '/validate.js';
+      
+      document.getElementById("register-form").addEventListener("submit", function (event) {
+        event.preventDefault();
 
-          const user = {
-            email: document.getElementById("email").value,
-            password: document.getElementById("password").value,
-            firstName: document.getElementById("firstName").value,
-            lastName: document.getElementById("lastName").value,
-            dateOfBirth: document.getElementById("dateOfBirth").value,
-            phoneNumber: document.getElementById("phoneNumber").value || null,
-          };
+        // Get form values
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const dateOfBirth = document.getElementById("dateOfBirth").value;
+        const phoneNumber = document.getElementById("phoneNumber").value;
 
-          fetch("http://localhost:8080/api/users/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(user),
-          })
-            .then((response) => {
-              if (!response.ok) {
-                return response.text().then((text) => {
-                  throw new Error(text);
-                });
-              }
-              return response.text();
-            })
-            .then((data) => {
-              alert(data); // "User registered successfully"
-              // Optional: Redirect to home page
-              // window.location.href = '/index.html';
-            })
-            .catch((error) => {
-              alert("Registration failed: " + error.message);
+        // Validate all fields
+        const validations = [
+          validateEmail(email),
+          validatePassword(password),
+          validateName(firstName),
+          validateName(lastName),
+          validateDateOfBirth(dateOfBirth)
+        ];
+
+        // Add phone validation only if provided
+        if (phoneNumber) {
+          validations.push(validatePhoneNumber(phoneNumber));
+        }
+
+        // Check for validation errors
+        const errors = validations.filter(v => !v.isValid);
+        if (errors.length > 0) {
+          alert(errors[0].message); // Show first error message
+          return;
+        }
+
+        // If validation passes, create user object and submit
+        const user = {
+          email,
+          password,
+          firstName,
+          lastName,
+          dateOfBirth,
+          phoneNumber: phoneNumber || null,
+        };
+
+        fetch("/api/users/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(user),
+        })
+        .then((response) => {
+          if (!response.ok) {
+            return response.text().then((text) => {
+              throw new Error(text);
             });
+          }
+          return response.text();
+        })
+        .then((data) => {
+          alert("Registration successful!");
+          window.location.href = '/login.html';
+        })
+        .catch((error) => {
+          alert("Registration failed: " + error.message);
         });
+      });
     </script>
   </body>
 </html>

@@ -128,8 +128,11 @@
             body: JSON.stringify({ email, password }),
           });
 
-          if (!response.ok) throw new Error(await response.text());
-
+          if (!response.ok)
+          {  
+               
+             throw new Error(await response.text());
+          }
           const user = await response.json();
           localStorage.setItem("loggedInUser", JSON.stringify(user));
           localStorage.setItem("userId", user.id);

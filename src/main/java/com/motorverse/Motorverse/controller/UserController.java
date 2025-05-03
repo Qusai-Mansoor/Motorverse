@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.nio.file.*;
 import java.time.LocalDate;
@@ -19,6 +20,8 @@ import java.io.IOException;
 public class UserController {
     @Autowired
     private UserRepository userRepository;
+
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     // Get all users (admin only)
     @GetMapping("/all")
@@ -36,19 +39,27 @@ public class UserController {
     // Create a new user (signup)
     @PostMapping("/signup")
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        // In production, hash the password before saving!
+        // Password will be automatically hashed by the User entity's setPassword method
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(savedUser);
     }
 
-    // Add this login endpoint to support the tests and frontend
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail());
-        if (user != null && user.getPassword().equals(loginRequest.getPassword())) {
-            return ResponseEntity.ok(user);
+        
+        if (user == null) {
+            return ResponseEntity.status(402).body(null); // User not found
         }
-        return ResponseEntity.status(401).body(null);
+
+        // Use BCrypt's matches method to compare passwords
+        if (!encoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            System.out.println("Password mismatch for user: " + user.getPassword() + " given: " +loginRequest.getPassword());
+            return ResponseEntity.status(401).body(null); // Wrong password
+        }
+
+        // Successful login
+        return ResponseEntity.ok(user);
     }
 
     // Update a user (admin only)
@@ -118,10 +129,12 @@ public class UserController {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!user.getPassword().equals(request.getCurrentPassword())) {
+        // Check if current password matches
+        if (!encoder.matches(request.getCurrentPassword(), user.getPassword())) {
             return ResponseEntity.badRequest().body("Current password is incorrect");
         }
 
+        // Set new password (will be automatically hashed)
         user.setPassword(request.getNewPassword());
         userRepository.save(user);
         return ResponseEntity.ok("Password changed successfully");

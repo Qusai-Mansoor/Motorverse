@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Motorverse - Welcome</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       @keyframes fadeInDown {
         from {
@@ -36,119 +33,18 @@
       .animate-pulse {
         animation: pulse 2s infinite;
       }
-      .font-outfit {
-        font-family: 'Outfit', sans-serif;
-      }
-      .font-inter {
-        font-family: 'Inter', sans-serif;
-      }
-      .btn-primary {
-        position: relative;
-        overflow: hidden;
-        transition: all 0.4s ease;
-        z-index: 1;
-      }
-      .btn-primary::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 0;
-        height: 100%;
-        background: rgba(255,255,255,0.1);
-        transition: all 0.4s ease;
-        z-index: -1;
-      }
-      .btn-primary:hover::before {
-        width: 100%;
-      }
-      .nav-transparent {
-        background: rgba(17, 24, 39, 0);
-        backdrop-filter: blur(8px);
-        transition: all 0.4s ease;
-      }
-      .nav-transparent.scrolled {
-        background: rgba(17, 24, 39, 0.95);
-      }
-      /* Modern Button Styles */
-      .btn-modern {
-        position: relative;
-        overflow: hidden;
-        padding: 0.875rem 2rem;
-        border-radius: 9999px;
-        font-weight: 600;
-        letter-spacing: 0.025em;
-        transform: translateY(0);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      }
-
-      .btn-modern:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      }
-
-      .btn-modern:active {
-        transform: translateY(0);
-      }
-
-      .btn-modern::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          120deg,
-          transparent,
-          rgba(255, 255, 255, 0.2),
-          transparent
-        );
-        transition: 0.6s;
-      }
-
-      .btn-modern:hover::after {
-        left: 100%;
-      }
-
-      .btn-icon {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .btn-icon svg {
-        transition: transform 0.3s ease;
-      }
-
-      .btn-icon:hover svg {
-        transform: translateX(4px);
-      }
-
-      .btn-primary {
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-      }
-
-      .btn-secondary {
-        background: linear-gradient(135deg, #4b5563, #374151);
-      }
-
-      .btn-success {
-        background: linear-gradient(135deg, #10b981, #059669);
-      }
     </style>
   </head>
   <body
-    class="bg-gray-900 text-white font-inter min-h-screen flex flex-col overflow-x-hidden"
+    class="bg-gray-900 text-white font-sans min-h-screen flex flex-col overflow-x-hidden"
   >
     <!-- Navbar -->
-    <nav class="nav-transparent fixed w-full top-0 z-50 transition-all duration-300">
-      <div class="container mx-auto flex justify-between items-center p-6">
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg z-10">
+      <div class="container mx-auto flex justify-between items-center">
         <h1
-          class="text-3xl font-bold font-outfit tracking-wide"
+          class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400"
         >
-          <a href="#" class="text-white hover:text-blue-400 transition-colors duration-300">Motorverse</a>
+          Motorverse
         </h1>
         <div class="flex items-center space-x-6">
           <div id="nav-links" class="hidden md:flex space-x-6">
@@ -322,218 +218,117 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative h-screen flex items-center justify-center overflow-hidden">
-        <!-- Background Image with Overlay -->
-        <div class="absolute inset-0 z-0">
-            <div class="absolute inset-0 bg-black opacity-60 z-10"></div>
-            <img src="/images/hero-bg.jpg" alt="Luxury Car" class="w-full h-full object-cover">
+    <main class="flex-grow flex items-center justify-center py-12">
+      <div class="text-center space-y-6">
+        <h1 class="text-5xl md:text-6xl font-extrabold animate-fadeInDown">
+          Welcome to Motorverse
+        </h1>
+        <h2
+          class="text-2xl md:text-3xl text-gray-300 font-light animate-fadeInDown delay-200"
+        >
+          Your All-in-One Automotive Hub
+        </h2>
+        <p
+          class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto animate-fadeInDown delay-400"
+        >
+          Discover a seamless way to buy, rent, and manage your automotive needs
+          with Motorverse.
+        </p>
+      </div>
+    </main>
+
+    <!-- Services Section -->
+    <section class="container mx-auto p-6 pb-12">
+      <h3
+        class="text-3xl font-semibold text-center mb-10 animate-fadeInDown delay-600"
+      >
+        Our Services
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div
+          class="relative bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-blue-500 to-transparent opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300"
+          ></div>
+          <h4 class="text-xl font-bold mb-3 relative z-10">Buy a Car</h4>
+          <p class="text-gray-300 mb-4 relative z-10">
+            Explore a curated selection of vehicles for purchase, tailored to
+            your needs.
+          </p>
+          <a
+            href="buy-car.html"
+            class="inline-block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-center transition-all duration-200 transform hover:scale-105 animate-pulse"
+            >Discover Now</a
+          >
         </div>
-
-        <!-- Hero Content -->
-        <div class="container mx-auto px-6 relative z-20 text-center">
-            <h1 class="text-6xl md:text-7xl font-bold font-outfit mb-6 animate-fadeInDown">
-                Welcome to <span class="text-blue-400">Motorverse</span>
-            </h1>
-            <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto animate-fadeInDown delay-200 font-light">
-                Your premium destination for buying, selling, and renting exceptional vehicles
-            </p>
-            <div class="flex flex-col md:flex-row gap-6 justify-center animate-fadeInDown delay-300">
-                <a href="buy-car.html" 
-                   class="btn-modern btn-primary btn-icon group">
-                    <span>Browse Cars</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
-                </a>
-                <a href="rent-car.html" 
-                   class="btn-modern btn-success btn-icon group">
-                    <span>Rent Now</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
-                </a>
-            </div>
+        <div
+          class="relative bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-green-500 to-transparent opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300"
+          ></div>
+          <h4 class="text-xl font-bold mb-3 relative z-10">Rent a Car</h4>
+          <p class="text-gray-300 mb-4 relative z-10">
+            Flexible rental options for every journey, available at your
+            fingertips.
+          </p>
+          <a
+            href="rent-car.html"
+            class="inline-block w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full text-center transition-all duration-200 transform hover:scale-105 animate-pulse"
+            >Rent Today</a
+          >
         </div>
-
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-            </svg>
+        <div
+          class="relative bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-amber-500 to-transparent opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300"
+          ></div>
+          <h4 class="text-xl font-bold mb-3 relative z-10">Post a Vehicle</h4>
+          <p class="text-gray-300 mb-4 relative z-10">
+            List your vehicle for sale on our platform and connect with
+            potential buyers.
+          </p>
+          <a
+            href="post-vehicle.html"
+            class="inline-block w-full bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full text-center transition-all duration-200 transform hover:scale-105 animate-pulse"
+            >Post Now</a
+          >
         </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="py-20 bg-gray-800">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-16">Why Choose Motorverse</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-                <!-- Feature 1 -->
-                <div class="text-center p-6 bg-gray-700 rounded-xl transform transition-all duration-300 hover:-translate-y-2">
-                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-4">Premium Selection</h3>
-                    <p class="text-gray-300">Curated collection of high-quality vehicles for every preference and need.</p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="text-center p-6 bg-gray-700 rounded-xl transform transition-all duration-300 hover:-translate-y-2">
-                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-4">Easy Process</h3>
-                    <p class="text-gray-300">Streamlined buying and renting process with instant approvals.</p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="text-center p-6 bg-gray-700 rounded-xl transform transition-all duration-300 hover:-translate-y-2">
-                    <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-4">24/7 Support</h3>
-                    <p class="text-gray-300">Dedicated customer service team ready to assist you anytime.</p>
-                </div>
-            </div>
+        <div
+          class="relative bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-red-500 to-transparent opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300"
+          ></div>
+          <h4 class="text-xl font-bold mb-3 relative z-10">Auto Parts</h4>
+          <p class="text-gray-300 mb-4 relative z-10">
+            Browse our extensive collection of auto parts for all your repair and upgrade needs.
+          </p>
+          <a
+            href="auto-parts.html"
+            class="inline-block w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full text-center transition-all duration-200 transform hover:scale-105 animate-pulse"
+            >Shop Parts</a
+          >
         </div>
-    </section>
-
-    <!-- Services Section with vertical layout -->
-    <section class="py-20 relative overflow-hidden">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-16">Our Services</h2>
-            
-            <div class="space-y-12 max-w-5xl mx-auto">
-                <!-- Buy a Car Service -->
-                <div class="flex flex-col md:flex-row bg-gray-800 rounded-xl overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-                    <div class="w-full md:w-2/5">
-                        <img src="/images/buy-car.jpg" alt="Buy a Car" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-full md:w-3/5 p-8 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center mb-4">
-                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-2xl font-bold">Buy a Car</h3>
-                            </div>
-                            <p class="text-gray-300 mb-6">Explore our curated selection of premium vehicles. Find your perfect match with our comprehensive search tools and detailed vehicle information.</p>
-                        </div>
-                        <a href="buy-car.html" 
-                           class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105">
-                            Browse Cars
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Rent a Car Service -->
-                <div class="flex flex-col md:flex-row bg-gray-800 rounded-xl overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-                    <div class="w-full md:w-2/5">
-                        <img src="/images/rent-car.jpg" alt="Rent a Car" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-full md:w-3/5 p-8 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center mb-4">
-                                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-4">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-2xl font-bold">Rent a Car</h3>
-                            </div>
-                            <p class="text-gray-300 mb-6">Flexible rental options for every journey. Experience premium vehicles with our hassle-free booking process and competitive rates.</p>
-                        </div>
-                        <a href="rent-car.html" 
-                           class="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105">
-                            Rent Now
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Auto Parts Service -->
-                <div class="flex flex-col md:flex-row bg-gray-800 rounded-xl overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-                    <div class="w-full md:w-2/5">
-                        <img src="/images/auto-parts.jpg" alt="Auto Parts" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-full md:w-3/5 p-8 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center mb-4">
-                                <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mr-4">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-2xl font-bold">Auto Parts</h3>
-                            </div>
-                            <p class="text-gray-300 mb-6">Quality parts for all your automotive needs. Browse our extensive collection of genuine parts and accessories.</p>
-                        </div>
-                        <a href="auto-parts.html" 
-                           class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105">
-                            Shop Parts
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Support Service -->
-                <div class="flex flex-col md:flex-row bg-gray-800 rounded-xl overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-                    <div class="w-full md:w-2/5">
-                        <img src="/images/support.jpg" alt="Support" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-full md:w-3/5 p-8 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center mb-4">
-                                <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mr-4">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-2xl font-bold">24/7 Support</h3>
-                            </div>
-                            <p class="text-gray-300 mb-6">Expert assistance whenever you need it. Our dedicated team is here to help with any questions or concerns.</p>
-                        </div>
-                        <a href="support.html" 
-                           class="inline-block bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105">
-                            Get Help
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <div
+          class="relative bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-purple-500 to-transparent opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300"
+          ></div>
+          <h4 class="text-xl font-bold mb-3 relative z-10">Support & More</h4>
+          <p class="text-gray-300 mb-4 relative z-10">
+            Get help, explore parts, insurance, and financing—all in one place.
+          </p>
+          <a
+            href="support.html"
+            class="inline-block w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full text-center transition-all duration-200 transform hover:scale-105 animate-pulse"
+            >Learn More</a
+          >
         </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="py-20 bg-gray-800">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-4xl font-bold mb-8">Ready to Get Started?</h2>
-            <p class="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-                Join Motorverse today and experience the future of automotive services.
-            </p>
-            <div class="flex flex-col md:flex-row gap-6 justify-center">
-                <a href="register.html" 
-                   class="btn-modern btn-primary btn-icon group">
-                    <span>Create Account</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
-                </a>
-                <a href="#" 
-                   class="btn-modern btn-secondary btn-icon group">
-                    <span>Learn More</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                    </svg>
-                </a>
-            </div>
-        </div>
+      </div>
     </section>
 
     <!-- Footer -->
@@ -631,16 +426,6 @@
             dropdown.classList.add("hidden");
           }
         });
-      });
-
-      // Add Navbar Background on Scroll
-      window.addEventListener('scroll', () => {
-        const nav = document.querySelector('.nav-transparent');
-        if (window.scrollY > 50) {
-            nav.classList.add('scrolled');
-        } else {
-            nav.classList.remove('scrolled');
-        }
       });
     </script>
   </body>

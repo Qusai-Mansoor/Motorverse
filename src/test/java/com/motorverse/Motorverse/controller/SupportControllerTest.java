@@ -15,6 +15,10 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+// Add imports for TicketRequest and TicketUpdateRequest
+import com.motorverse.Motorverse.controller.TicketRequest;
+import com.motorverse.Motorverse.controller.TicketUpdateRequest;
+
 @ExtendWith(MockitoExtension.class)
 public class SupportControllerTest {
 
