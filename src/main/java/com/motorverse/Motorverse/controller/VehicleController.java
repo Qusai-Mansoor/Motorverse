@@ -53,7 +53,7 @@ public class VehicleController {
         return vehicleRepository.findByStatus(Vehicle.Status.AVAILABLE);
     }
 
-    @GetMapping("/{id:[\\d]+}")  // Modified to only match digits
+    @GetMapping("/{id:[\\d]+}")  
     public Vehicle getVehicleById(@PathVariable int id) {
         return vehicleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));

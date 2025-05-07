@@ -51,6 +51,7 @@
                     <!-- Specifications will be added here dynamically -->
                     
                     <button id="buy-now" class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105">Buy Now</button>
+                    <button id="test-drive" class="block w-full bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105 mb-4">Book Test Drive</button>
                 </div>
             </div>
         </section>
@@ -103,6 +104,13 @@
                         // Insert specs before the buy now button
                         const buyNowButton = document.getElementById('buy-now');
                         detailsSection.insertBefore(specsContainer, buyNowButton);
+                        
+                        // Add test drive button
+                        const testDriveButton = document.createElement('button');
+                        testDriveButton.id = 'test-drive';
+                        testDriveButton.className = 'block w-full bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105 mb-4';
+                        testDriveButton.textContent = 'Book Test Drive';
+                        detailsSection.insertBefore(testDriveButton, buyNowButton);
                     })
                     .catch(error => {
                         console.error('Error fetching listing:', error);
@@ -128,6 +136,19 @@
                     .map(word => word.charAt(0) + word.slice(1).toLowerCase())
                     .join(' ');
             }
+
+            // Test Drive button click handler
+            document.addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'test-drive') {
+                    const isLoggedIn = localStorage.getItem('loggedInUser') !== null;
+                    
+                    if (isLoggedIn) {
+                        window.location.href = `/test-drive.html?listingId=${listingId}`;
+                    } else {
+                        window.location.href = `/login.html?redirect=/test-drive.html?listingId=${listingId}`;
+                    }
+                }
+            });
 
             document.getElementById('buy-now').addEventListener('click', (e) => {
                 e.preventDefault();

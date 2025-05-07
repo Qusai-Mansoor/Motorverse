@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motorverse - Book Test Drive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in { animation: fadeIn 0.8s ease-out; }
+        .available-slot {
+            transition: all 0.2s ease;
+        }
+        .available-slot:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .available-slot.selected {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 sticky top-0 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold transition-colors duration-300 hover:text-blue-400">Motorverse</h1>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="hover:text-blue-400 transition-colors duration-200">Home</a>
+                <a href="buy-car.html" class="hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+                <a href="rent-car.html" class="hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+                <a href="support.html" class="hover:text-blue-400 transition-colors duration-200">Support</a>
+                <a href="register.html" class="hover:text-blue-400 transition-colors duration-200">Register</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-white focus:outline-none hover:text-blue-400 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-2 bg-gray-800 p-2 rounded-b-lg">
+            <a href="index.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Home</a>
+            <a href="buy-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Buy a Car</a>
+            <a href="rent-car.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Rent a Car</a>
+            <a href="support.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Support</a>
+            <a href="register.html" class="block py-2 hover:text-blue-400 transition-colors duration-200">Register</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-6">Book a Test Drive</h1>
+        
+        <section class="max-w-4xl mx-auto bg-gray-800 rounded-xl shadow-lg p-6 mb-8 fade-in">
+            <div class="flex flex-col md:flex-row gap-8">
+                <img id="vehicle-image" src="" alt="Vehicle" class="w-full md:w-1/3 h-48 md:h-auto object-cover rounded-lg">
+                <div class="flex-1">
+                    <h2 id="vehicle-name" class="text-2xl font-bold mb-2">Loading...</h2>
+                    <p id="vehicle-price" class="text-xl text-gray-300 mb-2">$0.00</p>
+                    <div id="specs-container" class="grid grid-cols-2 gap-2 bg-gray-700 rounded-lg p-4 mb-4 text-sm">
+                        <!-- Vehicle specs will be loaded here -->
+                    </div>
+                    <p id="vehicle-description" class="text-gray-400">Loading vehicle details...</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="max-w-4xl mx-auto bg-gray-800 rounded-xl shadow-lg p-6 fade-in">
+            <h2 class="text-2xl font-bold mb-4">Select Test Drive Date & Time</h2>
+            
+            <div class="mb-6">
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-1">
+                        <label for="test-drive-date" class="block text-gray-300 mb-2">Date</label>
+                        <input type="date" id="test-drive-date" class="w-full p-2 bg-gray-700 rounded text-white focus:ring-2 focus:ring-green-500">
+                        <p id="date-error" class="text-red-500 text-sm mt-1 hidden"></p>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <label class="block text-gray-300 mb-2">Preferred Time</label>
+                        <div class="grid grid-cols-2 gap-2" id="time-slots">
+                            <div class="p-2 bg-gray-700 rounded text-center available-slot border-2 border-transparent cursor-pointer" data-time="9:00 AM">9:00 AM</div>
+                            <div class="p-2 bg-gray-700 rounded text-center available-slot border-2 border-transparent cursor-pointer" data-time="10:30 AM">10:30 AM</div>
+                            <div class="p-2 bg-gray-700 rounded text-center available-slot border-2 border-transparent cursor-pointer" data-time="12:00 PM">12:00 PM</div>
+                            <div class="p-2 bg-gray-700 rounded text-center available-slot border-2 border-transparent cursor-pointer" data-time="1:30 PM">1:30 PM</div>
+                            <div class="p-2 bg-gray-700 rounded text-center available-slot border-2 border-transparent cursor-pointer" data-time="3:00 PM">3:00 PM</div>
+                            <div class="p-2 bg-gray-700 rounded text-center available-slot border-2 border-transparent cursor-pointer" data-time="4:30 PM">4:30 PM</div>
+                        </div>
+                        <p id="time-error" class="text-red-500 text-sm mt-1 hidden">Please select a time slot</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="contact-number" class="block text-gray-300 mb-2">Contact Phone Number</label>
+                    <input type="tel" id="contact-number" class="w-full p-2 bg-gray-700 rounded text-white focus:ring-2 focus:ring-green-500" placeholder="Your contact number">
+                    <p id="phone-error" class="text-red-500 text-sm mt-1 hidden">Please enter a valid phone number</p>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="special-requests" class="block text-gray-300 mb-2">Special Requests (Optional)</label>
+                    <textarea id="special-requests" class="w-full p-2 bg-gray-700 rounded text-white focus:ring-2 focus:ring-green-500" rows="3" placeholder="Any special requests or questions"></textarea>
+                </div>
+                
+                <div class="text-center">
+                    <button id="confirm-test-drive" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full text-center transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Confirm Test Drive
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 rounded-xl shadow-xl p-6 max-w-md w-full mx-4 fade-in">
+            <div class="text-center">
+                <div class="mb-4 text-green-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">Test Drive Booked!</h3>
+                <p class="text-gray-300 mb-4">Your test drive has been successfully scheduled.</p>
+                
+                <div class="bg-gray-700 p-4 rounded-lg mb-6 text-left">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-400">Vehicle:</span>
+                        <span id="confirm-vehicle" class="font-medium"></span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-400">Date:</span>
+                        <span id="confirm-date" class="font-medium"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Time:</span>
+                        <span id="confirm-time" class="font-medium"></span>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-gray-400 mb-6">We'll send a confirmation to your registered email and contact you at the provided phone number.</p>
+                
+                <div class="flex justify-center space-x-4">
+                    <button id="close-modal" class="bg-gray-600 hover:bg-gray-500 text-white px-5 py-2 rounded-full transition-all duration-200">
+                        Close
+                    </button>
+                    <button id="go-home" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-full transition-all duration-200">
+                        Return Home
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 p-4 text-center shadow-inner">
+        <p class="text-gray-300">© 2025 Motorverse</p>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const listingId = urlParams.get('listingId');
+            
+            // UI Elements
+            const vehicleImage = document.getElementById('vehicle-image');
+            const vehicleName = document.getElementById('vehicle-name');
+            const vehiclePrice = document.getElementById('vehicle-price');
+            const specsContainer = document.getElementById('specs-container');
+            const vehicleDescription = document.getElementById('vehicle-description');
+            const testDriveDate = document.getElementById('test-drive-date');
+            const timeSlots = document.querySelectorAll('.available-slot');
+            const contactNumber = document.getElementById('contact-number');
+            const specialRequests = document.getElementById('special-requests');
+            const confirmButton = document.getElementById('confirm-test-drive');
+            const confirmationModal = document.getElementById('confirmation-modal');
+            const confirmVehicle = document.getElementById('confirm-vehicle');
+            const confirmDate = document.getElementById('confirm-date');
+            const confirmTime = document.getElementById('confirm-time');
+            const closeModal = document.getElementById('close-modal');
+            const goHome = document.getElementById('go-home');
+            
+            // Error Elements
+            const dateError = document.getElementById('date-error');
+            const timeError = document.getElementById('time-error');
+            const phoneError = document.getElementById('phone-error');
+            
+            let selectedTimeSlot = null;
+            
+            // Set min date to today
+            const today = new Date();
+            const tomorrow = new Date();
+            tomorrow.setDate(today.getDate() + 1);
+            const maxDate = new Date();
+            maxDate.setDate(today.getDate() + 30); // Allow bookings up to 30 days in advance
+            
+            testDriveDate.min = formatDate(tomorrow);
+            testDriveDate.max = formatDate(maxDate);
+            
+            // Format date to YYYY-MM-DD
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            
+            // Load vehicle details
+            if (listingId) {
+                fetch(`/api/listings/${listingId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Listing not found');
+                        return response.json();
+                    })
+                    .then(listing => {
+                        vehicleImage.src = `/images/${listing.picture}`;
+                        vehicleImage.alt = listing.name;
+                        vehicleName.textContent = `${listing.name} ${listing.year}`;
+                        vehiclePrice.textContent = `$${listing.price.toFixed(2)}`;
+                        vehicleDescription.textContent = listing.description || 'No description available.';
+                        
+                        // Add vehicle specifications
+                        specsContainer.innerHTML = '';
+                        
+                        if (listing.mileage) {
+                            addSpecItem('Mileage', `${listing.mileage.toLocaleString()} miles`);
+                        }
+                        if (listing.fuelType) {
+                            addSpecItem('Fuel Type', formatEnum(listing.fuelType));
+                        }
+                        if (listing.transmission) {
+                            addSpecItem('Transmission', formatEnum(listing.transmission));
+                        }
+                        if (listing.condition) {
+                            addSpecItem('Condition', formatEnum(listing.condition));
+                        }
+                        if (listing.location) {
+                            addSpecItem('Location', listing.location);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching listing:', error);
+                        vehicleName.textContent = 'Error loading vehicle';
+                        vehiclePrice.textContent = 'N/A';
+                        vehicleDescription.textContent = 'Could not load vehicle details. Please try again later.';
+                    });
+            }
+            
+            // Helper function to add spec items
+            function addSpecItem(label, value) {
+                const item = document.createElement('div');
+                item.innerHTML = `
+                    <p class="text-gray-400 text-xs">${label}</p>
+                    <p class="text-white">${value}</p>
+                `;
+                specsContainer.appendChild(item);
+            }
+            
+            // Helper function to format enum values
+            function formatEnum(value) {
+                if (!value) return '';
+                return value.split('_')
+                    .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+                    .join(' ');
+            }
+            
+            // Time slot selection
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', () => {
+                    // Remove selected class from all slots
+                    timeSlots.forEach(s => s.classList.remove('selected'));
+                    
+                    // Add selected class to this slot
+                    slot.classList.add('selected');
+                    selectedTimeSlot = slot.dataset.time;
+                    
+                    // Hide time error if it was shown
+                    timeError.classList.add('hidden');
+                });
+            });
+            
+            // Date validation
+            testDriveDate.addEventListener('change', () => {
+                const selectedDate = new Date(testDriveDate.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate <= today) {
+                    dateError.textContent = 'Please select a future date';
+                    dateError.classList.remove('hidden');
+                    return false;
+                }
+                
+                const maxDate = new Date();
+                maxDate.setDate(today.getDate() + 30);
+                
+                if (selectedDate > maxDate) {
+                    dateError.textContent = 'Please select a date within the next 30 days';
+                    dateError.classList.remove('hidden');
+                    return false;
+                }
+                
+                // Check if the selected date is a Sunday
+                if (selectedDate.getDay() === 0) {
+                    dateError.textContent = 'Test drives are not available on Sundays';
+                    dateError.classList.remove('hidden');
+                    return false;
+                }
+                
+                dateError.classList.add('hidden');
+                return true;
+            });
+            
+            // Phone validation
+            contactNumber.addEventListener('blur', () => {
+                const phoneNumber = contactNumber.value.trim();
+                const phonePattern = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+                
+                if (!phonePattern.test(phoneNumber)) {
+                    phoneError.classList.remove('hidden');
+                    return false;
+                }
+                
+                phoneError.classList.add('hidden');
+                return true;
+            });
+            
+            // Form validation and submission
+            confirmButton.addEventListener('click', () => {
+                let isValid = true;
+                
+                // Validate date
+                const selectedDate = new Date(testDriveDate.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (!testDriveDate.value || selectedDate <= today || selectedDate.getDay() === 0) {
+                    dateError.textContent = selectedDate.getDay() === 0 
+                        ? 'Test drives are not available on Sundays' 
+                        : 'Please select a valid future date';
+                    dateError.classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    dateError.classList.add('hidden');
+                }
+                
+                // Validate time slot
+                if (!selectedTimeSlot) {
+                    timeError.classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    timeError.classList.add('hidden');
+                }
+                
+                // Validate phone
+                const phoneNumber = contactNumber.value.trim();
+                const phonePattern = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+                
+                if (!phonePattern.test(phoneNumber)) {
+                    phoneError.classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    phoneError.classList.add('hidden');
+                }
+                
+                if (isValid) {
+                    // Show confirmation modal
+                    confirmVehicle.textContent = vehicleName.textContent;
+                    
+                    // Format date for confirmation
+                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    const formattedDate = new Date(testDriveDate.value).toLocaleDateString('en-US', options);
+                    confirmDate.textContent = formattedDate;
+                    
+                    confirmTime.textContent = selectedTimeSlot;
+                    confirmationModal.classList.remove('hidden');
+                    
+                    const testDriveData = {
+                        listingId: listingId,
+                        userId: JSON.parse(localStorage.getItem('loggedInUser')).id,
+                        date: testDriveDate.value,
+                        time: selectedTimeSlot,
+                        contactNumber: phoneNumber,
+                        specialRequests: specialRequests.value.trim()
+                    };
+                    
+                    console.log('Test drive booking data:', testDriveData);
+                }
+            });
+            
+            // Modal actions
+            closeModal.addEventListener('click', () => {
+                confirmationModal.classList.add('hidden');
+            });
+            
+            goHome.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>

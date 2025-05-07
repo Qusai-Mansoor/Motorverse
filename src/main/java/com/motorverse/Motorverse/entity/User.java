@@ -3,7 +3,6 @@ package com.motorverse.Motorverse.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 @Table(name = "users")
@@ -59,7 +58,7 @@ public class User {
 
     public User(String email, String password, String firstName, String lastName, LocalDate dateOfBirth, String phoneNumber) {
         this.email = email;
-        this.password = password; // In production, hash this!
+        this.password = password; 
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
@@ -79,20 +78,8 @@ public class User {
         this.status = Status.ACTIVE;
     }
 
-    // @PrePersist
-    // protected void onCreate() {
-    //     if (password != null) {
-    //         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-    //         password = encoder.encode(password);
-    //     }
-    //     createdAt = LocalDateTime.now();
-    // }
-
     public void setPassword(String password) {
-        if (password != null) {
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            this.password = encoder.encode(password);
-        }
+        this.password = password;
     }
 
     // Getters and Setters
@@ -101,7 +88,6 @@ public class User {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getPassword() { return password; }
-    //public void setPassword(String password) { this.password = password; }
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public String getLastName() { return lastName; }

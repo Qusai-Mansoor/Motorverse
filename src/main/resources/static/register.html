@@ -102,7 +102,7 @@
         <h2 class="text-4xl font-bold text-center">Register</h2>
       </div>
       <section class="max-w-md mx-auto">
-        <form id="register-form" class="bg-gray-800 p-6 rounded-lg shadow-md">
+        <div id="register-form" class="bg-gray-800 p-6 rounded-lg shadow-md">
           <div class="mb-4">
             <label class="block text-sm mb-2" for="email">Email</label>
             <input
@@ -160,83 +160,157 @@
               class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
+          <div id="error-message" class="text-red-500 mb-4 hidden"></div>
           <button
-            type="submit"
+            type="button"
+            id="register-button"
             class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-all duration-200 transform hover:scale-105"
           >
             Register
           </button>
-        </form>
+        </div>
       </section>
     </main>
     <footer class="bg-gray-800 p-4 text-center shadow-inner">
       <p class="text-gray-300">© 2025 Motorverse</p>
     </footer>
-    <script src="/script.js"></script>
-    <script type="module">
-      import { validateEmail, validatePassword, validateName, validateDateOfBirth, validatePhoneNumber } from '/validate.js';
-      
-      document.getElementById("register-form").addEventListener("submit", function (event) {
-        event.preventDefault();
-
-        // Get form values
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        const firstName = document.getElementById("firstName").value;
-        const lastName = document.getElementById("lastName").value;
-        const dateOfBirth = document.getElementById("dateOfBirth").value;
-        const phoneNumber = document.getElementById("phoneNumber").value;
-
-        // Validate all fields
-        const validations = [
-          validateEmail(email),
-          validatePassword(password),
-          validateName(firstName),
-          validateName(lastName),
-          validateDateOfBirth(dateOfBirth)
-        ];
-
-        // Add phone validation only if provided
-        if (phoneNumber) {
-          validations.push(validatePhoneNumber(phoneNumber));
-        }
-
-        // Check for validation errors
-        const errors = validations.filter(v => !v.isValid);
-        if (errors.length > 0) {
-          alert(errors[0].message); // Show first error message
-          return;
-        }
-
-        // If validation passes, create user object and submit
-        const user = {
-          email,
-          password,
-          firstName,
-          lastName,
-          dateOfBirth,
-          phoneNumber: phoneNumber || null,
+    
+    <script>
+      // Simple validation functions directly in the file
+      function validateEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return {
+          isValid: regex.test(email),
+          message: "Please enter a valid email address."
         };
+      }
+      
+      function validatePassword(password) {
+        return {
+          isValid: password.length >= 6,
+          message: "Password must be at least 6 characters long."
+        };
+      }
+      
+      function validateName(name) {
+        return {
+          isValid: name.trim().length > 0,
+          message: "Name cannot be empty."
+        };
+      }
+      
+      function validateDateOfBirth(dob) {
+        if (!dob) {
+          return { isValid: false, message: "Date of birth is required." };
+        }
+        
+        const dobDate = new Date(dob);
+        const now = new Date();
+        const minAge = 16;
+        
+        // Calculate age
+        let age = now.getFullYear() - dobDate.getFullYear();
+        const monthDiff = now.getMonth() - dobDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < dobDate.getDate())) {
+          age--;
+        }
+        
+        return {
+          isValid: age >= minAge,
+          message: `You must be at least ${minAge} years old to register.`
+        };
+      }
+      
+      function validatePhoneNumber(phone) {
+        // Basic phone validation - allows various formats
+        const regex = /^[\d\s\+\-\(\)]{7,20}$/;
+        return {
+          isValid: regex.test(phone),
+          message: "Please enter a valid phone number."
+        };
+      }
+      
+      document.addEventListener("DOMContentLoaded", function() {
+        console.log("DOM fully loaded");
+        
+        const registerButton = document.getElementById("register-button");
+        const errorMessage = document.getElementById("error-message");
+        
+        registerButton.addEventListener("click", function() {
+          console.log("Register button clicked");
+          errorMessage.classList.add("hidden");
+          
+          // Get form values
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const firstName = document.getElementById("firstName").value;
+          const lastName = document.getElementById("lastName").value;
+          const dateOfBirth = document.getElementById("dateOfBirth").value;
+          const phoneNumber = document.getElementById("phoneNumber").value;
+          
+          console.log("Form data collected:", { email, firstName, lastName, dateOfBirth, phoneNumber });
 
-        fetch("/api/users/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(user),
-        })
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text);
-            });
+          // Validate all fields
+          const validations = [
+            validateEmail(email),
+            validatePassword(password),
+            validateName(firstName),
+            validateName(lastName),
+            validateDateOfBirth(dateOfBirth)
+          ];
+
+          // Add phone validation only if provided
+          if (phoneNumber) {
+            validations.push(validatePhoneNumber(phoneNumber));
           }
-          return response.text();
-        })
-        .then((data) => {
-          alert("Registration successful!");
-          window.location.href = '/login.html';
-        })
-        .catch((error) => {
-          alert("Registration failed: " + error.message);
+
+          // Check for validation errors
+          const errors = validations.filter(v => !v.isValid);
+          if (errors.length > 0) {
+            errorMessage.textContent = errors[0].message;
+            errorMessage.classList.remove("hidden");
+            console.error("Validation error:", errors[0].message);
+            return;
+          }
+
+          // If validation passes, create user object and submit
+          const user = {
+            email,
+            password,
+            firstName,
+            lastName,
+            dateOfBirth,
+            phoneNumber: phoneNumber || null,
+            role: "USER",
+            status: "ACTIVE"
+          };
+          
+          console.log("Sending registration request");
+
+          fetch("/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(user),
+          })
+          .then((response) => {
+            console.log("Response received:", response.status);
+            if (!response.ok) {
+              return response.text().then((text) => {
+                throw new Error(text || "Registration failed");
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Registration successful:", data);
+            alert("Registration successful! Please login.");
+            window.location.href = '/login.html';
+          })
+          .catch((error) => {
+            console.error("Registration error:", error);
+            errorMessage.textContent = "Registration failed: " + error.message;
+            errorMessage.classList.remove("hidden");
+          });
         });
       });
     </script>

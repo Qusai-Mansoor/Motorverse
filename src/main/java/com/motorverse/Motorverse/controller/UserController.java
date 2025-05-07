@@ -2,11 +2,18 @@ package com.motorverse.Motorverse.controller;
 
 import com.motorverse.Motorverse.entity.User;
 import com.motorverse.Motorverse.repository.UserRepository;
+import com.motorverse.Motorverse.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.file.*;
 import java.time.LocalDate;
@@ -21,49 +28,77 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    @Autowired
+    private PasswordEncoder encoder;
+    
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    
+    @Autowired
+    private JwtUtil jwtUtil;
 
     // Get all users (admin only)
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userRepository.findAll());
     }
 
     // Get a user by ID
     @GetMapping("/{id}")
+    @PreAuthorize("authentication.principal.username == @userRepository.findById(#id).orElse(new com.motorverse.Motorverse.entity.User()).getEmail() or hasRole('ADMIN')")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         Optional<User> user = userRepository.findById(id);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
-    // Create a new user (signup)
     @PostMapping("/signup")
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        // Password will be automatically hashed by the User entity's setPassword method
+        // Encode the password before saving
+        String rawPassword = user.getPassword();
+        user.setPassword(encoder.encode(rawPassword));
+        
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(savedUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.getEmail());
-        
-        if (user == null) {
-            return ResponseEntity.status(402).body(null); // User not found
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            // Authenticate the user
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+            );
+            
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            // Get user details
+            User user = userRepository.findByEmail(loginRequest.getEmail());
+            if (user == null) {
+                return ResponseEntity.status(402).body("User not found");
+            }
+            
+            // Generate JWT token
+            String token = jwtUtil.generateToken(user);
+      
+            LoginResponse response = new LoginResponse(
+                token,
+                user.getId(),
+                user.getFirstName(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getRole().toString()
+            );
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Authentication failed: " + e.getMessage());
         }
-
-        // Use BCrypt's matches method to compare passwords
-        if (!encoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            System.out.println("Password mismatch for user: " + user.getPassword() + " given: " +loginRequest.getPassword());
-            return ResponseEntity.status(401).body(null); // Wrong password
-        }
-
-        // Successful login
-        return ResponseEntity.ok(user);
     }
 
     // Update a user (admin only)
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateUser(@PathVariable int id, @RequestBody User updatedUser) {
         Optional<User> existingUser = userRepository.findById(id);
         if (!existingUser.isPresent()) {
@@ -85,6 +120,7 @@ public class UserController {
 
     // Delete a user (admin only)
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable int id) {
         if (!userRepository.existsById(id)) {
             return ResponseEntity.status(404).body("User not found");
@@ -95,6 +131,7 @@ public class UserController {
     }
 
     @PutMapping("/profile/{id}")
+    @PreAuthorize("authentication.principal.username == @userRepository.findById(#id).orElse(new com.motorverse.Motorverse.entity.User()).getEmail() or hasRole('ADMIN')")
     public ResponseEntity<?> updateProfile(@PathVariable int id, @RequestBody ProfileUpdateRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -125,6 +162,7 @@ public class UserController {
     }
 
     @PutMapping("/change-password/{id}")
+    @PreAuthorize("authentication.principal.username == @userRepository.findById(#id).orElse(new com.motorverse.Motorverse.entity.User()).getEmail()")
     public ResponseEntity<?> changePassword(@PathVariable int id, @RequestBody PasswordChangeRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -134,13 +172,14 @@ public class UserController {
             return ResponseEntity.badRequest().body("Current password is incorrect");
         }
 
-        // Set new password (will be automatically hashed)
-        user.setPassword(request.getNewPassword());
+        // Set new password (encode it here)
+        user.setPassword(encoder.encode(request.getNewPassword()));
         userRepository.save(user);
         return ResponseEntity.ok("Password changed successfully");
     }
 
     @PostMapping("/profile/{id}/picture")
+    @PreAuthorize("authentication.principal.username == @userRepository.findById(#id).orElse(new com.motorverse.Motorverse.entity.User()).getEmail() or hasRole('ADMIN')")
     public ResponseEntity<?> updateProfilePicture(
             @PathVariable int id,
             @RequestParam("picture") MultipartFile picture) {
@@ -173,7 +212,6 @@ public class UserController {
             Path destination = uploadPath.resolve(newFilename);
             Files.copy(picture.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
 
-            // Delete old profile picture if it exists and isn't the default
             if (!user.getPicture().equals("default-avatar.jpg")) {
                 try {
                     Files.deleteIfExists(uploadPath.resolve(user.getPicture()));
@@ -197,6 +235,7 @@ public class UserController {
     }
 
     @GetMapping("/profile/{id}")
+    @PreAuthorize("authentication.principal.username == @userRepository.findById(#id).orElse(new com.motorverse.Motorverse.entity.User()).getEmail() or hasRole('ADMIN')")
     public ResponseEntity<?> getProfile(@PathVariable int id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -216,8 +255,24 @@ public class UserController {
 
     @GetMapping("/status/{id}")
     public ResponseEntity<?> checkLoginStatus(@PathVariable int id) {
+        // This should validate token in the request
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || 
+            authentication.getName().equals("anonymousUser")) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+        
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Verify the authenticated user has permission to check this user's status
+        String authenticatedEmail = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        
+        if (!user.getEmail().equals(authenticatedEmail) && !isAdmin) {
+            return ResponseEntity.status(403).body("Access denied");
+        }
         
         LoginStatusResponse response = new LoginStatusResponse(
             user.getId(),

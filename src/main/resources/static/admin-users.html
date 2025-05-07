@@ -95,9 +95,18 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const user = JSON.parse(localStorage.getItem("loggedInUser"));
-        if (!user || user.role.toUpperCase() !== "ADMIN") {
-          alert("Access denied. Admins only.");
+        const token = localStorage.getItem("userToken");
+        
+        // Check for authentication and authorization
+        if (!token || !user) {
+          alert("You must be logged in to access this page.");
           window.location.href = "/login.html";
+          return;
+        }
+        
+        if (user.role.toUpperCase() !== "ADMIN") {
+          alert("Access denied. Admins only.");
+          window.location.href = "/index.html";
           return;
         }
 
@@ -126,19 +135,35 @@
 
         async function fetchUsers() {
           try {
-            const token = localStorage.getItem("loggedInUser");
-            if (!token)
-              throw new Error(
-                "No authentication token found. Please log in again."
-              );
+            const token = localStorage.getItem("userToken");
+            if (!token) {
+              alert("Your session has expired. Please log in again.");
+              window.location.href = "/login.html";
+              return;
+            }
 
             const response = await fetch("/api/users/all", {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
+                "Authorization": `Bearer ${token}`
               },
             });
+
+            if (response.status === 403) {
+              alert("You don't have permission to access this resource.");
+              window.location.href = "/index.html";
+              return;
+            }
+
+            if (response.status === 401) {
+              alert("Your session has expired. Please log in again.");
+              localStorage.removeItem("userToken");
+              localStorage.removeItem("loggedInUser");
+              localStorage.removeItem("userId");
+              window.location.href = "/login.html";
+              return;
+            }
 
             if (!response.ok) {
               const errorText = await response.text();
@@ -233,15 +258,36 @@
               };
 
               try {
+                const token = localStorage.getItem("userToken");
+                if (!token) {
+                  alert("Your session has expired. Please log in again.");
+                  window.location.href = "/login.html";
+                  return;
+                }
+                
                 const response = await fetch(`/api/users/${userId}`, {
                   method: "PUT",
                   headers: {
                     "Content-Type": "application/json",
-                    Authorization:
-                      "Bearer " + localStorage.getItem("userToken"),
+                    "Authorization": `Bearer ${token}`
                   },
                   body: JSON.stringify(updatedUser),
                 });
+                
+                if (response.status === 401) {
+                  alert("Your session has expired. Please log in again.");
+                  localStorage.removeItem("userToken");
+                  localStorage.removeItem("loggedInUser");
+                  localStorage.removeItem("userId");
+                  window.location.href = "/login.html";
+                  return;
+                }
+                
+                if (response.status === 403) {
+                  alert("You don't have permission to update this user.");
+                  return;
+                }
+                
                 if (!response.ok) throw new Error(await response.text());
                 alert("User updated successfully");
                 fetchUsers();
@@ -262,14 +308,35 @@
                 return;
 
               try {
+                const token = localStorage.getItem("userToken");
+                if (!token) {
+                  alert("Your session has expired. Please log in again.");
+                  window.location.href = "/login.html";
+                  return;
+                }
+                
                 const response = await fetch(`/api/users/${userId}`, {
                   method: "DELETE",
                   headers: {
                     "Content-Type": "application/json",
-                    Authorization:
-                      "Bearer " + localStorage.getItem("userToken"),
+                    "Authorization": `Bearer ${token}`
                   },
                 });
+                
+                if (response.status === 401) {
+                  alert("Your session has expired. Please log in again.");
+                  localStorage.removeItem("userToken");
+                  localStorage.removeItem("loggedInUser");
+                  localStorage.removeItem("userId");
+                  window.location.href = "/login.html";
+                  return;
+                }
+                
+                if (response.status === 403) {
+                  alert("You don't have permission to delete this user.");
+                  return;
+                }
+                
                 if (!response.ok) throw new Error(await response.text());
                 alert("User deleted successfully");
                 fetchUsers();

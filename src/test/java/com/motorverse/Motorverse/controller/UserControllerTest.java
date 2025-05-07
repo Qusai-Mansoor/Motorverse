@@ -2,12 +2,18 @@ package com.motorverse.Motorverse.controller;
 
 import com.motorverse.Motorverse.entity.User;
 import com.motorverse.Motorverse.repository.UserRepository;
+import com.motorverse.Motorverse.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.List;
@@ -26,11 +32,24 @@ class LoginRequest {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 }
+
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
 
     @Mock
     private UserRepository userRepository;
+    
+    @Mock
+    private BCryptPasswordEncoder encoder;
+    
+    @Mock
+    private AuthenticationManager authenticationManager;
+    
+    @Mock
+    private JwtUtil jwtUtil;
+    
+    @Mock
+    private Authentication authentication;
 
     @InjectMocks
     private UserController userController;
@@ -101,28 +120,85 @@ public class UserControllerTest {
 
     @Test
     void login_Success() {
+        // Setup mocks
         when(userRepository.findByEmail("john@example.com")).thenReturn(testUser);
-        // Use the actual LoginRequest class from the controller
-        LoginRequest req = new LoginRequest(); // Use imported LoginRequest
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+            .thenReturn(authentication);
+        when(jwtUtil.generateToken(testUser)).thenReturn("dummy.jwt.token");
+        
+        // Create request
+        LoginRequest req = new LoginRequest();
         req.setEmail("john@example.com");
         req.setPassword("password");
-        ResponseEntity<User> response = userController.login(req);
+        
+        // Call login method
+        ResponseEntity<?> response = userController.login(req);
+        
+        // Verify results
         assertTrue(response.getStatusCode().is2xxSuccessful());
-        assertNotNull(response.getBody()); // Check for null before accessing
-        assertEquals(testUser.getEmail(), response.getBody().getEmail());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody() instanceof LoginResponse);
+        
+        LoginResponse loginResponse = (LoginResponse) response.getBody();
+        assertEquals("dummy.jwt.token", loginResponse.getToken());
+        assertEquals(1, loginResponse.getUserId());
+        assertEquals("John", loginResponse.getFirstName());
+        assertEquals("john@example.com", loginResponse.getEmail());
+        
+        // Verify interactions
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(userRepository).findByEmail("john@example.com");
+        verify(jwtUtil).generateToken(testUser);
     }
 
     @Test
     void login_Failure() {
-        when(userRepository.findByEmail("john@example.com")).thenReturn(testUser);
-        LoginRequest req = new LoginRequest(); // Use imported LoginRequest
+        // Setup mocks to throw exception during authentication
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+            .thenThrow(new RuntimeException("Authentication failed"));
+        
+        // Create request
+        LoginRequest req = new LoginRequest();
         req.setEmail("john@example.com");
         req.setPassword("wrongpassword");
-        ResponseEntity<User> response = userController.login(req);
+        
+        // Call login method
+        ResponseEntity<?> response = userController.login(req);
+        
+        // Verify results
         assertEquals(401, response.getStatusCode().value());
-        assertNull(response.getBody());
+        assertTrue(response.getBody() instanceof String);
+        assertTrue(((String)response.getBody()).contains("Authentication failed"));
+        
+        // Verify interactions
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(userRepository, never()).findByEmail(anyString());
+        verify(jwtUtil, never()).generateToken(any(User.class));
+    }
+
+    @Test
+    void login_UserNotFound() {
+        // Setup mocks
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+            .thenReturn(authentication);
+        when(userRepository.findByEmail("john@example.com")).thenReturn(null);
+        
+        // Create request
+        LoginRequest req = new LoginRequest();
+        req.setEmail("john@example.com");
+        req.setPassword("password");
+        
+        // Call login method
+        ResponseEntity<?> response = userController.login(req);
+        
+        // Verify results
+        assertEquals(402, response.getStatusCode().value());
+        assertEquals("User not found", response.getBody());
+        
+        // Verify interactions
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(userRepository).findByEmail("john@example.com");
+        verify(jwtUtil, never()).generateToken(any(User.class));
     }
 
     @Test
